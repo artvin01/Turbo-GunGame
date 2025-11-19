@@ -558,7 +558,11 @@ void Weapons_ResetRound()
 	
 	int MaxWeapons = Cvar_GGR_WeaponsTillWin.IntValue;
 	if(MaxWeapons > length)
+	{
 		Cvar_GGR_WeaponsTillWin.IntValue = length;
+		MaxWeapons = length;
+	}
+	
 	WeaponInfo Weplist;
 	ItemInfo info;
 	for(int i; i<MaxWeapons; i++)
