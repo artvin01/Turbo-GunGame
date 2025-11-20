@@ -1011,7 +1011,6 @@ stock bool IsValidEnemy(int index, int enemy, bool camoDetection=false, bool tar
 
 		if(enemy <= MaxClients)
 		{
-			
 			if(!mp_friendlyfire.IntValue && GetTeam(index) == GetTeam(enemy))
 			{
 				return false;

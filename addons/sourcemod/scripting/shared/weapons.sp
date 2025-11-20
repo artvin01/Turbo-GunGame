@@ -13,6 +13,7 @@ enum struct ItemInfo
 	char WeaponHudExtra[16];
 	char Desc[256];
 	int CustomWeaponOnEquip;
+	int WeaponVMTExtraSetting;
 
 	int Index;
 	int Attrib[32];
@@ -47,6 +48,8 @@ enum struct ItemInfo
 		Format(buffer, sizeof(buffer), "%sdesc", prefix);
 		kv.GetString(buffer, this.Desc, 256);
 		
+		this.WeaponVMTExtraSetting	= view_as<bool>(kv.GetNum("weapon_vmt_setting", -1));
+
 		Format(buffer, sizeof(buffer), "%sclassname", prefix);
 		kv.GetString(buffer, this.Classname, 36);
 		Format(buffer, sizeof(buffer), "%sscore", prefix);
@@ -325,6 +328,7 @@ int Weapons_GiveItem(int client, int index, bool &use=false, bool &found=false)
 				EntityFuncReload4[entity]  = info.FuncReload4;
 				EntityFuncReloadCreate [entity]  = info.FuncWeaponCreated;
 				EntityFuncJarate[entity] = info.FuncJarate;
+				i_WeaponVMTExtraSetting[entity] 			= info.WeaponVMTExtraSetting;
 
 				if (info.Reload_ModeForce == 1)
 				{

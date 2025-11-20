@@ -457,7 +457,11 @@ void ViewChange_Switch(int client, int active, const char[] classname)
 			if(entity != -1)	// Weapon viewmodel
 			{
 				WeaponRef_viewmodel[client] = EntIndexToEntRef(entity);
-
+				if(i_WeaponVMTExtraSetting[active] != -1)
+				{
+					i_WeaponVMTExtraSetting[entity] = i_WeaponVMTExtraSetting[active];
+					SetEntityRenderColor(entity, 255, 255, 255, i_WeaponVMTExtraSetting[active]);
+				}
 				if(i_WeaponBodygroup[active] != -1)
 				{
 					SetVariantInt(i_WeaponBodygroup[active]);
@@ -472,7 +476,12 @@ void ViewChange_Switch(int client, int active, const char[] classname)
 					SetEntProp(entity, Prop_Send, "m_nModelIndex", i_WeaponModelIndexOverride[active]);
 				else
 					SetEntProp(entity, Prop_Send, "m_nModelIndex", GetEntProp(active, Prop_Send, "m_iWorldModelIndex"));
-				
+					
+				if(i_WeaponVMTExtraSetting[active] != -1)
+				{
+					i_WeaponVMTExtraSetting[entity] = i_WeaponVMTExtraSetting[active];
+					SetEntityRenderColor(entity, 255, 255, 255, i_WeaponVMTExtraSetting[active]);
+				}
 				if(i_WeaponBodygroup[active] != -1)
 				{
 					SetVariantInt(i_WeaponBodygroup[active]);

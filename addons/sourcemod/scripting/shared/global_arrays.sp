@@ -33,6 +33,7 @@ float f_RoundStartUberLastsUntil;
 ConVar tf_scout_air_dash_count;
 
 
+int i_WeaponVMTExtraSetting[MAXENTITIES];
 int h_NpcSolidHookType[MAXENTITIES];
 bool b_IsATrigger[MAXENTITIES];
 bool b_IsATriggerHurt[MAXENTITIES];

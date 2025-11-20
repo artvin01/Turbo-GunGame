@@ -75,6 +75,7 @@ public void Gravaton_Wand_Primary_Attack(int client, int weapon, bool crit, int 
 	float vec[3];
 
 	TR_GetEndPosition(vec, TempTrace);
+	vec[2] += 5.0;
 	delete TempTrace;
 
 	int color[4];
@@ -167,7 +168,7 @@ public Action Smite_Timer_Gravaton_Wand(Handle Smite_Logic, DataPack data)
 	}
 				
 
-	CreateExplosion(client, startPosition, damage, 125, RoundToNearest(Ionrange));
+	CreateExplosion(client, startPosition, 500.0, RoundToNearest(damage), RoundToNearest(Ionrange));
 	
 	DataPack pack_boom = new DataPack();
 	pack_boom.WriteFloat(startPosition[0]);

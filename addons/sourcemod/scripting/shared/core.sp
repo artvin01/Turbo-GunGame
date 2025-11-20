@@ -117,6 +117,7 @@ public void OnMapStart()
 	PrecacheSound("zombiesurvival/headshot1.wav");
 	PrecacheSound("zombiesurvival/headshot2.wav");
 	PrecacheSound("quake/standard/headshot.mp3");
+	PrecacheSound("ambient/explosions/explode_3.wav");
 	PrecacheSound(SOUND_LEVELUP);
 	
 	AddFileToDownloadsTable("sound/zombiesurvival/headshot1.wav");
@@ -234,7 +235,7 @@ static Action SandvichTouch(int entity, int target)
 		return Plugin_Continue;
 	
 	RemoveEntity(entity);
-	SDKHooks_TakeDamage(target, client, client, 4200.0, DMG_PREVENT_PHYSICS_FORCE, _, {0.0, 0.0, 0.0});
+	SDKHooks_TakeDamage(target, client, client, 420.0, DMG_PREVENT_PHYSICS_FORCE, _, {0.0, 0.0, 0.0});
 	return Plugin_Handled;
 }
 
