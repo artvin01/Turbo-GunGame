@@ -19,44 +19,54 @@ public Action OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	//am ded
 	CreateTimer(1.0, Timer_Respawn, GetClientUserId(victim));
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
+	int assister = GetClientOfUserId(event.GetInt("assister"));
+	
 	if(IsValidClient(attacker) && attacker != victim)
 	{
-		DataPack pack = new DataPack();
-		pack.WriteCell(EntIndexToEntRef(attacker));
-		RequestFrame(DelayFrame_RankPlayerUp, pack);
+		RequestFrame(DelayFrame_RankPlayerUp, GetClientUserId(attacker));
 		if(i_HasBeenHeadShotted[victim])
 		{
 			EmitSoundToClient(victim, "quake/standard/headshot.mp3", _, _, 90, _, 1.0, 100);
 			EmitSoundToClient(attacker, "quake/standard/headshot.mp3", _, _, 90, _, 1.0, 100);
+		}
+		
+		if (assister && IsValidClient(assister) && assister != attacker && assister != victim && CanClientGetAssistCredit(assister))
+		{
+			if (++ClientAssistsThisLevel[assister] == 2)
+			{
+				RequestFrame(DelayFrame_RankPlayerUp, GetClientUserId(assister));
+			}
 		}
 	}
 	i_HasBeenHeadShotted[victim] = false;
 	return Plugin_Continue;
 }
 
-stock void DelayFrame_RankPlayerUp(DataPack pack)
+bool CanClientGetAssistCredit(int client)
 {
-	pack.Reset();
-	int attacker = EntRefToEntIndex(pack.ReadCell());
-	if(!IsValidEntity(attacker))
-	{
-		delete pack;
-		return;
-	}
+	// Can't get assists on last rank
+	return (ClientAtWhatScore[client] < Cvar_GGR_WeaponsTillWin.IntValue);
+}
 
-	GiveClientWeapon(attacker, 1);
+stock void DelayFrame_RankPlayerUp(int userid)
+{
+	int client = GetClientOfUserId(userid);
+	if(!IsValidEntity(client))
+		return;
+
+	GiveClientWeapon(client, 1);
+	ClientAssistsThisLevel[client] = 0;
 	
-	if(ClientAtWhatScore[attacker] >= Cvar_GGR_WeaponsTillWin.IntValue && GameRules_GetRoundState() == RoundState_RoundRunning)
+	if(ClientAtWhatScore[client] >= Cvar_GGR_WeaponsTillWin.IntValue && GameRules_GetRoundState() == RoundState_RoundRunning)
 	{
 		//epic win
-		ClientAtWhatScore[attacker] = Cvar_GGR_WeaponsTillWin.IntValue;
+		ClientAtWhatScore[client] = Cvar_GGR_WeaponsTillWin.IntValue;
 		
 		// Make this prettier later i dunno
-		PrintToChatAll("%N wins the game!", attacker);
+		PrintToChatAll("%N wins the game!", client);
 		
-		ForceTeamWin(TF2_GetClientTeam(attacker));
+		ForceTeamWin(TF2_GetClientTeam(client));
 	}
-	delete pack;
 }
 public Action Timer_Respawn(Handle timer, any uuid)
 {

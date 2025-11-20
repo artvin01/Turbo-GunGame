@@ -45,6 +45,10 @@ public void OnPostThink(int client)
 		float HudX = -1.0;
 		SetHudTextParams(HudX, HudY, 0.81, 255, 165, 0, 255);
 		Format(buffer, sizeof(buffer), "(%i/%i)\n[%s]", ClientAtWhatScore[client], Cvar_GGR_WeaponsTillWin.IntValue, c_WeaponName[client]);
+		
+		if (ClientAssistsThisLevel[client] > 0)
+			StrCat(buffer, sizeof(buffer), "\nYou'll rank up on the next assist!");
+		
 		ShowSyncHudText(client, SyncHud_GunGame, "%s", buffer);
 	}
 }

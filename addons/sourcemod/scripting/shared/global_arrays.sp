@@ -78,3 +78,4 @@ int g_particleMiniCritText;
 
 bool i_HasBeenHeadShotted[MAXPLAYERS];
 int ClientAtWhatScore[MAXPLAYERS];
+int ClientAssistsThisLevel[MAXPLAYERS];
