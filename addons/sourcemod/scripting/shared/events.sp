@@ -28,7 +28,7 @@ public Action OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 			EmitSoundToClient(attacker, "quake/standard/headshot.mp3", _, _, 90, _, 1.0, 100);
 		}
 		
-		if(ClientAtWhatScore[attacker] >= Cvar_GGR_WeaponsTillWin.IntValue)
+		if(ClientAtWhatScore[attacker] >= Cvar_GGR_WeaponsTillWin.IntValue && GameRules_GetRoundState() == RoundState_RoundRunning)
 		{
 			//epic win
 			ClientAtWhatScore[attacker] = Cvar_GGR_WeaponsTillWin.IntValue;
