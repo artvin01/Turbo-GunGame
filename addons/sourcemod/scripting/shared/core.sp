@@ -47,6 +47,7 @@
 #define HIDEHUD_METAL		( 1<<15 )	
 #define HIDEHUD_TARGET_ID		( 1<<16 )	
 
+#define SOUND_LEVELUP "gungame_riot/levelup.mp3"
 
 #include "global_arrays.sp"
 #include "stocks_override.sp"
@@ -112,6 +113,7 @@ public void OnMapStart()
 	PrecacheSound("zombiesurvival/headshot1.wav");
 	PrecacheSound("zombiesurvival/headshot2.wav");
 	PrecacheSound("quake/standard/headshot.mp3");
+	PrecacheSound(SOUND_LEVELUP);
 
 	Zero(h_NpcSolidHookType);
 	Weapon_Arrow_Shoot_Map_Precache();
