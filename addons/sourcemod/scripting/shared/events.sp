@@ -34,7 +34,8 @@ public Action OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 		
 		if (assister && IsValidClient(assister) && assister != attacker && assister != victim && CanClientGetAssistCredit(assister))
 		{
-			if (++ClientAssistsThisLevel[assister] == 2)
+			ClientAssistsThisLevel[assister]++;
+			if (ClientAssistsThisLevel[assister] >= 2)
 			{
 				RequestFrame(DelayFrame_RankPlayerUp, GetClientUserId(assister));
 			}
@@ -103,7 +104,7 @@ public void OnPlayerResupply(Event event, const char[] name, bool dontBroadcast)
 	if(!client)
 		return;
 
-	SetEntProp(client, Prop_Send, "m_iHideHUD", GetEntProp(client, Prop_Send, "m_iHideHUD") | HIDEHUD_BUILDING_STATUS | HIDEHUD_CLOAK_AND_FEIGN);
+	//SetEntProp(client, Prop_Send, "m_iHideHUD", GetEntProp(client, Prop_Send, "m_iHideHUD") | HIDEHUD_BUILDING_STATUS | HIDEHUD_CLOAK_AND_FEIGN);
 	TF2_RemoveAllWeapons(client); //Remove all weapons. No matter what.
 
 	if(Cvar_GGR_AllowFreeClassPicking.IntValue)
@@ -137,9 +138,17 @@ public void OnPlayerResupply(Event event, const char[] name, bool dontBroadcast)
 	ViewChange_Update(client);
 	Weapons_ApplyAttribs(client);
 	SDKCall_GiveCorrectAmmoCount(client);
-	GiveClientWeapon(client);
+	RequestFrame(GiveWeaponLate, GetClientUserId(client));
 }
 
+stock void GiveWeaponLate(int userid)
+{
+	int client = GetClientOfUserId(userid);
+	if(!IsValidEntity(client))
+		return;
+
+	GiveClientWeapon(client);
+}
 public void OnRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	Weapons_ResetRound();

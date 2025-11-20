@@ -129,14 +129,17 @@ public void OnMapStart()
 	AddFileToDownloadsTable("sound/zombiesurvival/headshot2.wav");
 	AddFileToDownloadsTable("sound/quake/standard/headshot.mp3");
 	AddFileToDownloadsTable("sound/gungame_riot/levelup.mp3");
+	
 	AddFileToDownloadsTable("models/zombie_riot/weapons/custom_weaponry_1_52.dx80.vtx");
 	AddFileToDownloadsTable("models/zombie_riot/weapons/custom_weaponry_1_52.dx90.vtx");
 	AddFileToDownloadsTable("models/zombie_riot/weapons/custom_weaponry_1_52.mdl");
 	AddFileToDownloadsTable("models/zombie_riot/weapons/custom_weaponry_1_52.vvd");
+
 	AddFileToDownloadsTable("models/zombie_riot/weapons/ruina_models_1_2_2.dx80.vtx");
 	AddFileToDownloadsTable("models/zombie_riot/weapons/ruina_models_1_2_2.dx90.vtx");
 	AddFileToDownloadsTable("models/zombie_riot/weapons/ruina_models_1_2_2.mdl");
 	AddFileToDownloadsTable("models/zombie_riot/weapons/ruina_models_1_2_2.vvd");
+
 	AddFileToDownloadsTable("models/zombie_riot/weapons/ruina_models_2_5.dx80.vtx");
 	AddFileToDownloadsTable("models/zombie_riot/weapons/ruina_models_2_5.dx90.vtx");
 	AddFileToDownloadsTable("models/zombie_riot/weapons/ruina_models_2_5.mdl");
@@ -145,14 +148,16 @@ public void OnMapStart()
 	AddFileToDownloadsTable("models/zombie_riot/weapons/c_soldier_arms.dx90.vtx");
 	AddFileToDownloadsTable("models/zombie_riot/weapons/c_soldier_arms.mdl");
 	AddFileToDownloadsTable("models/zombie_riot/weapons/c_soldier_arms.vvd");
-	AddFileToDownloadsTable("materials/models/weapons/custom_weaponry.vtf");
-	AddFileToDownloadsTable("materials/models/weapons/blue.vmt");
-	AddFileToDownloadsTable("materials/models/weapons/blue_test_2.vmt");
-	AddFileToDownloadsTable("materials/models/weapons/glow_inner_2.vmt");
-	AddFileToDownloadsTable("materials/models/weapons/glow_inner.vmt");
-	AddFileToDownloadsTable("materials/models/weapons/weaponry_solid_white.vtf");
-	AddFileToDownloadsTable("materials/models/weapons/weaponry_solid_white_2.vtf");
-	AddFileToDownloadsTable("materials/models/weapons/weaponry_trans_white_2.vtf");
+	AddFileToDownloadsTable("materials/models/weapons/custom_weaponry/grey.vtf");
+	AddFileToDownloadsTable("materials/models/weapons/custom_weaponry/grey.vmt");
+	AddFileToDownloadsTable("materials/models/weapons/custom_weaponry/blue.vmt");
+	AddFileToDownloadsTable("materials/models/weapons/custom_weaponry/blue_test_2.vmt");
+	AddFileToDownloadsTable("materials/models/weapons/custom_weaponry/glow_inner_2.vmt");
+	AddFileToDownloadsTable("materials/models/weapons/custom_weaponry/glow_inner.vmt");
+	AddFileToDownloadsTable("materials/models/weapons/custom_weaponry/weaponry_solid_white.vtf");
+	AddFileToDownloadsTable("materials/models/weapons/custom_weaponry/weaponry_solid_white_2.vtf");
+	AddFileToDownloadsTable("materials/models/weapons/custom_weaponry/weaponry_trans_white.vtf");
+	AddFileToDownloadsTable("materials/models/weapons/custom_weaponry/weaponry_trans_white_2.vtf");
 
 	Zero(h_NpcSolidHookType);
 	Weapon_Arrow_Shoot_Map_Precache();

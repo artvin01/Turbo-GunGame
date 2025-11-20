@@ -91,10 +91,6 @@ static int CustomHandIndex[sizeof(PlayerCustomHands)];
 
 static bool b_AntiSameFrameUpdate[MAXPLAYERS];
 
-#if defined ZR
-static int TeutonModelIndex;
-#endif
-
 void ViewChange_MapStart()
 {
 	for(int i; i<sizeof(HandIndex); i++)
@@ -123,9 +119,6 @@ void ViewChange_MapStart()
 	}
 	Zero(b_AntiSameFrameUpdate);
 
-#if defined ZR
-	TeutonModelIndex = PrecacheModel(COMBINE_CUSTOM_2_MODEL, true);
-#endif
 
 	int entity = -1;
 	while((entity=FindEntityByClassname(entity, "tf_wearable_vm")) != -1)
@@ -303,9 +296,6 @@ void ViewChange_PlayerModel(int client)
 #endif
 		
 		SetEntProp(entity, Prop_Send, "m_fEffects", 129);
-#if defined ZR
-		GetTeamOverride(team);
-#endif
 		SetTeam(entity, team);
 		SetEntProp(entity, Prop_Send, "m_nSkin", SetSkin);
 		SetEntProp(entity, Prop_Send, "m_usSolidFlags", 4);
@@ -325,13 +315,6 @@ void ViewChange_PlayerModel(int client)
 		float flPos[3];
 		float flAng[3];
 		GetAttachment(entity, "flag", flPos, flAng);
-#if defined ZR
-		TransferDispenserBackToOtherEntity(client, false);
-#endif
-
-#if defined RPG
-		Party_PlayerModel(client, PlayerModels[CurrentClass[client]]);
-#endif
 
 	}
 }
@@ -446,9 +429,8 @@ void ViewChange_Switch(int client, int active, const char[] classname)
 			SetEntProp(entity, Prop_Send, "m_nModelIndex", HandIndex[class]);
 			
 			int team = GetClientTeam(client);
-#if defined ZR
-			GetTeamOverride(team);
-#endif
+
+
 			SetTeam(entity, team);
 			SetEntProp(entity, Prop_Send, "m_nSkin", team-2);
 			int model = GetEntProp(active, Prop_Send, "m_iWorldModelIndex");
@@ -491,9 +473,7 @@ void ViewChange_Switch(int client, int active, const char[] classname)
 				ImportSkinAttribs(entity, active);
 
 				SetEntProp(entity, Prop_Send, "m_fEffects", 129);
-#if defined ZR
-				GetTeamOverride(team);
-#endif
+
 				SetTeam(entity, team);
 				SetEntProp(entity, Prop_Send, "m_nSkin", team-2);
 				SetEntProp(entity, Prop_Send, "m_usSolidFlags", 4);
