@@ -145,6 +145,7 @@ public Action Player_TraceAttack(int victim, int& attacker, int& inflictor, floa
 
 /*
 	//to use EntityFuncTakeDamage, copypaste this on take damage, the wepaon will be your wepaon ez gg
+	//make your own file like all other weapons.
 
 */
 public Action Player_OnTakeDamage(int victim, int &attacker, int &inflictor, float &damage, int &damagetype, int &weapon, float damageForce[3], float damagePosition[3], int damagecustom)
