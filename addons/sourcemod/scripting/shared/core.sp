@@ -123,6 +123,7 @@ public void OnMapStart()
 	PrecacheSound("ambient/explosions/explode_3.wav");
 	PrecacheSound(SOUND_LEVELUP);
 	PrecacheSound(SOUND_FINALLEVEL);
+	PrecacheSound("mvm/mvm_money_vanish.wav");
 	
 	
 	AddFileToDownloadsTable("sound/zombiesurvival/headshot1.wav");

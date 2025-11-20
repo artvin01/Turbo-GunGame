@@ -176,7 +176,7 @@ enum struct ItemInfo
 	}
 
 */
-static ArrayList WeaponList;
+ArrayList WeaponList;
 void Weapons_ConfigsExecuted()
 {
 	if(WeaponList)
@@ -387,7 +387,7 @@ int Weapons_GiveItem(int client, int index, bool &use=false, bool &found=false)
 
 	ViewChange_PlayerModel(client);
 	ViewChange_Update(client);
-
+	
 	Event event = CreateEvent("localplayer_pickup_weapon", true);
 	event.FireToClient(client);
 	event.Cancel();
@@ -577,8 +577,16 @@ void Weapons_ResetRound()
 	int WeaponsPick;
 	int[] WeaponsPicking = new int[length];
 
+	WeaponInfo Weplist;
+	ItemInfo info;
 	for(int i; i<length; i++)
 	{
+		WeaponList.GetArray(i, info);
+		if(info.WeaponScore > 1.0)
+		{
+			PrintToChatAll("test");
+			continue;
+		}
 		//Pick up All weapons
 		WeaponsPicking[WeaponsPick++] = i;
 	}
@@ -592,13 +600,11 @@ void Weapons_ResetRound()
 		MaxWeapons = length;
 	}
 	
-	WeaponInfo Weplist;
-	ItemInfo info;
 	for(int i; i<MaxWeapons; i++)
 	{
 		Weplist.InternalWeaponID = WeaponsPicking[i];
 		WeaponList.GetArray(WeaponsPicking[i], info);
-		Weplist.ScoreSave = info.WeaponScore;
+		Weplist.ScoreSave = (info.WeaponScore + GetRandomFloat(-0.05, 0.05));
 		
 		WeaponListRound.PushArray(Weplist);
 	}
@@ -690,9 +696,14 @@ void GiveClientWeapon(int client, int Upgrade = 0)
 
 	WeaponInfo Weplist;
 	WeaponListRound.GetArray(GiveWeapon, Weplist);
-	
 	RemoveAllWeapons(client);
 	int weapon = Weapons_GiveItem(client, Weplist.InternalWeaponID);
+	char buffer[36];
+	GetEntityClassname(weapon, buffer, sizeof(buffer));
+	if(TF2_GetClassnameSlot(buffer, weapon) != 2) //no melee  weapon,give deranker
+	{
+		Weapons_GiveSpecificItem(client, "The Great Ragebaiter");
+	}
 	Manual_Impulse_101(client, ReturnEntityMaxHealth(client));
 	SDKCall_GiveCorrectAmmoCount(client);
 	RequestFrames(GiveHealth, 1, GetClientUserId(client));

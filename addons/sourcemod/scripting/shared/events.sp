@@ -20,27 +20,51 @@ public Action OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	CreateTimer(1.0, Timer_Respawn, GetClientUserId(victim));
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
 	int assister = GetClientOfUserId(event.GetInt("assister"));
-	
-	if(IsValidClient(attacker) && attacker != victim)
+
+	bool RankUp = true;
+	if(IsValidEntity(i_WeaponKilledWith[victim]))
 	{
-		ClientKillsThisFrame[attacker]++;
-		
-		RequestFrame(DelayFrame_RankPlayerUp, GetClientUserId(attacker));
-		if(i_HasBeenHeadShotted[victim])
+		if(Attributes_Get(i_WeaponKilledWith[victim], Attrib_DerankOnly, 0.0))
 		{
-			EmitSoundToClient(victim, "quake/standard/headshot.mp3", _, _, 90, _, 1.0, 100);
-			EmitSoundToClient(attacker, "quake/standard/headshot.mp3", _, _, 90, _, 1.0, 100);
+			RankUp = false;
 		}
-		
-		if (assister && IsValidClient(assister) && assister != attacker && assister != victim && CanClientGetAssistCredit(assister))
+	}
+	if(RankUp)
+	{
+		if(IsValidClient(attacker) && attacker != victim)
 		{
-			ClientAssistsThisLevel[assister]++;
-			if (ClientAssistsThisLevel[assister] == 2)
+			ClientKillsThisFrame[attacker]++;
+			
+			RequestFrame(DelayFrame_RankPlayerUp, GetClientUserId(attacker));
+			if(i_HasBeenHeadShotted[victim])
 			{
-				ClientKillsThisFrame[assister]++;
-				RequestFrame(DelayFrame_RankPlayerUp, GetClientUserId(assister));
+				EmitSoundToClient(victim, "quake/standard/headshot.mp3", _, _, 90, _, 1.0, 100);
+				EmitSoundToClient(attacker, "quake/standard/headshot.mp3", _, _, 90, _, 1.0, 100);
+			}
+			
+			if (assister && IsValidClient(assister) && assister != attacker && assister != victim && CanClientGetAssistCredit(assister))
+			{
+				ClientAssistsThisLevel[assister]++;
+				if (ClientAssistsThisLevel[assister] == 2)
+				{
+					ClientKillsThisFrame[assister]++;
+					RequestFrame(DelayFrame_RankPlayerUp, GetClientUserId(assister));
+				}
 			}
 		}
+	}
+	else
+	{
+		CPrintToChat(attacker,"%s You just deranked %N", GGR_PREFIX, victim);
+		CPrintToChat(victim,"%s %N just deranked you!!!!", GGR_PREFIX, victim);
+		EmitSoundToClient(victim, "mvm/mvm_money_vanish.wav", _, _, 90, _, 1.0, 100);
+		EmitSoundToClient(attacker, "mvm/mvm_money_vanish.wav", _, _, 90, _, 1.0, 100);
+		ClientAtWhatScore[victim]--;
+		if(ClientAtWhatScore[victim] <= 0)
+		{
+			ClientAtWhatScore[victim] = 0;
+		}
+		//fard
 	}
 	i_HasBeenHeadShotted[victim] = false;
 	return Plugin_Continue;

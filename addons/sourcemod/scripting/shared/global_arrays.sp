@@ -60,6 +60,7 @@ float f_WandDamage[MAXENTITIES]; //
 int i_WandWeapon[MAXENTITIES]; //
 int i_WandParticle[MAXENTITIES]; //Only one allowed, dont use more. ever. ever ever. lag max otherwise.
 int i_WandOwner[MAXENTITIES]; //				//785
+int i_WeaponKilledWith[MAXPLAYERS];
 
 int StoreWeapon[MAXENTITIES];
 

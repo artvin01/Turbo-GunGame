@@ -181,119 +181,26 @@ stock void OverridePlayerModel(int client, int index = -1, bool DontShowCosmetic
 	}
 }
 
-#if defined ZR
-static void GetTeamOverride(int &team)
-{
-	if(CurrentModifOn() == SECONDARY_MERCS)
-		team = 3;
-	
-	if(Construction_Mode() && (Rogue_HasNamedArtifact("Hold Out Normal") || Rogue_HasNamedArtifact("Hold Out Creep")))
-		team = 3;
-}
-#endif
 
 void ViewChange_PlayerModel(int client)
 {
-	
 
 	int ViewmodelPlayerModel = EntRefToEntIndex(i_Viewmodel_PlayerModel[client]);
 	if(IsValidEntity(ViewmodelPlayerModel))
 	{
-#if defined ZR
-		TransferDispenserBackToOtherEntity(client, true);
-#endif
 		TF2_RemoveWearable(client, ViewmodelPlayerModel);
 	}
 
-#if defined ZR
-	if(Rogue_GetChaosLevel() > 2 && !(GetURandomInt() % 9))
-		return;
-#endif
+
 
 	int team = GetClientTeam(client);
 	int entity = CreateEntityByName("tf_wearable");
 	if(entity != -1)	// playermodel
 	{
 		int SetSkin = team - 2;
-#if defined ZR
-		i_CustomModelOverrideIndex[client] = -1;
-		
-		if(TeutonType[client] == TEUTON_NONE)
-		{
-			if(i_HealthBeforeSuit[client] == 0)
-			{
-				int index;
-				int sound = -1;
-				int body = -1;
-				bool anim, noCosmetic;
-
-				if(i_PlayerModelOverrideIndexWearable[client] >= 0 && i_PlayerModelOverrideIndexWearable[client] < sizeof(PlayerModelsCustom))
-				{
-					index = CustomIndex[i_PlayerModelOverrideIndexWearable[client]];
-					sound = i_PlayerModelOverrideIndexWearable[client];
-					body = PlayerCustomModelBodyGroup[i_PlayerModelOverrideIndexWearable[client]];
-					anim = Viewchanges_PlayerModelsAnims[i_PlayerModelOverrideIndexWearable[client]];
-					noCosmetic = true;
-				}
-				else
-				{
-					index = PlayerIndex[CurrentClass[client]];
-				}
-
-				if(Native_OnClientWorldmodel(client, CurrentClass[client], index, sound, body, anim, noCosmetic))
-					OverridePlayerModel(client, -1, noCosmetic);
-
-				SetEntProp(entity, Prop_Send, "m_nModelIndex", index);
-
-				if(anim)
-				{
-					static char model[PLATFORM_MAX_PATH];
-					ModelIndexToString(index, model, sizeof(model));
-					SetVariantString(model);
-				}
-				else
-				{
-					SetVariantString(NULL_STRING);
-				}
-
-				AcceptEntityInput(client, "SetCustomModelWithClassAnimations");
-				i_CustomModelOverrideIndex[client] = sound;
-
-				if(body != -1)
-				{
-					SetEntProp(entity, Prop_Send, "m_nBody", body);
-					SetEntProp(client, Prop_Send, "m_nBody", body);
-				}
-			}
-			else
-			{
-				SetEntProp(entity, Prop_Send, "m_nModelIndex", RobotIndex[CurrentClass[client]]);
-
-				SetVariantString(NULL_STRING);
-				AcceptEntityInput(client, "SetCustomModelWithClassAnimations");
-			}
-
-			UpdatePlayerFakeModel(client);
-			MedicAdjustModel(client);
-		}
-		else
-		{
-			SetEntProp(entity, Prop_Send, "m_nModelIndex", TeutonModelIndex);
-			if(view_as<bool>(Store_HasNamedItem(client, "Shadow's Letter")))
-			{
-				SetEntProp(entity, Prop_Send, "m_nBody", 16);
-				SetSkin = 1;
-			}
-			else
-			{
-				SetEntProp(entity, Prop_Send, "m_nBody", 1);
-			}
-		}
-#else
 		UpdatePlayerFakeModel(client);
 		MedicAdjustModel(client);
 		SetEntProp(entity, Prop_Send, "m_nModelIndex", PlayerIndex[CurrentClass[client]]);
-#endif
 		
 		SetEntProp(entity, Prop_Send, "m_fEffects", 129);
 		SetTeam(entity, team);
@@ -698,6 +605,10 @@ void HidePlayerWeaponModel(int client, int entity, bool OnlyHide = false)
 //	SetEntProp(entity, Prop_Send, "m_fEffects", GetEntProp(entity, Prop_Send, "m_fEffects") | EF_NODRAW);
 	SetEntPropFloat(entity, Prop_Send, "m_fadeMinDist", 0.0);
 	SetEntPropFloat(entity, Prop_Send, "m_fadeMaxDist", 0.00001);
+	
+	ItemInfo info;
+	WeaponList.GetArray(StoreWeapon[entity], info);
+	Format(c_WeaponName[client],sizeof(c_WeaponName[]),"%s",info.WeaponName);	
 	if(OnlyHide)
 		return;
 	int EntityWeaponModel = EntRefToEntIndex(i_Worldmodel_WeaponModel[client]);
