@@ -592,12 +592,12 @@ void GiveClientWeapon(int client, int Upgrade = 0)
 
 	int GiveWeapon = ClientAtWhatScore[client];
 	GiveWeapon += Upgrade;
-	if(GiveWeapon >= Cvar_GGR_WeaponsTillWin.IntValue)
-	{
-		return;
-		//epic win
-	}
 	ClientAtWhatScore[client] = GiveWeapon;
+	
+	// Don't give a weapon if we're beyond the max rank
+	if(GiveWeapon >= Cvar_GGR_WeaponsTillWin.IntValue)
+		return;
+	
 	WeaponInfo Weplist;
 	WeaponListRound.GetArray(GiveWeapon, Weplist);
 	

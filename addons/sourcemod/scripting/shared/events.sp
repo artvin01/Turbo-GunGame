@@ -19,13 +19,24 @@ public Action OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	//am ded
 	CreateTimer(1.0, Timer_Respawn, GetClientUserId(victim));
 	int attacker = GetClientOfUserId(event.GetInt("attacker"));
-	if(IsValidClient(attacker))
+	if(IsValidClient(attacker) && attacker != victim)
 	{
 		GiveClientWeapon(attacker, 1);
 		if(i_HasBeenHeadShotted[victim])
 		{
 			EmitSoundToClient(victim, "quake/standard/headshot.mp3", _, _, 90, _, 1.0, 100);
 			EmitSoundToClient(attacker, "quake/standard/headshot.mp3", _, _, 90, _, 1.0, 100);
+		}
+		
+		if(ClientAtWhatScore[attacker] >= Cvar_GGR_WeaponsTillWin.IntValue)
+		{
+			//epic win
+			ClientAtWhatScore[attacker] = Cvar_GGR_WeaponsTillWin.IntValue;
+			
+			// Make this prettier later i dunno
+			PrintToChatAll("%N wins the game!", attacker);
+			
+			ForceTeamWin(TF2_GetClientTeam(attacker));
 		}
 	}
 	i_HasBeenHeadShotted[victim] = false;
@@ -91,11 +102,15 @@ public void OnPlayerResupply(Event event, const char[] name, bool dontBroadcast)
 	GiveClientWeapon(client);
 }
 
-
-
 public void OnRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	Weapons_ResetRound();
+	
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsValidClient(client) && IsPlayerAlive(client))
+			GiveClientWeapon(client, 0);
+	}
 }
 
 void OnTFPlayerManagerThinkPost(int entity)

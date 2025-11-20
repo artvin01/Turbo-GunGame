@@ -1117,3 +1117,22 @@ stock float DotProduct(float v1[3], float v2[4])
 {
 	return v1[0] * v2[0] + v1[1] * v2[1] + v1[2] * v2[2];
 }
+void ForceTeamWin(TFTeam team)
+{
+	int entity = FindEntityByClassname(-1, "game_round_win");
+	bool shouldDelete;
+	
+	if (entity == -1)
+	{
+		entity = CreateEntityByName("game_round_win");
+		DispatchSpawn(entity);
+		shouldDelete = true;
+	}
+	
+	SetVariantInt(view_as<int>(team));
+	AcceptEntityInput(entity, "SetTeam");
+	AcceptEntityInput(entity, "RoundWin");
+	
+	if (shouldDelete)
+		RemoveEntity(entity);
+}
