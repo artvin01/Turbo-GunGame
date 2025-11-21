@@ -66,8 +66,8 @@ static Action Timer_Local(Handle timer, DataPack pack)
 		WandProjectile_ApplyFunctionToEntity(projectile, Want_DefaultWandTouch);
 		if(!DoingDupstep[client])
 		{
-			EmitSoundToAll("music/hl1_song10.mp3", client, SNDCHAN_STATIC, 80, _, 1.0, .soundtime = GetGameTime() - 26.0);
-			EmitSoundToAll("music/hl1_song10.mp3", client, SNDCHAN_STATIC, 80, _, 1.0, .soundtime = GetGameTime() - 26.0);
+			EmitSoundToAll("music/hl1_song10.mp3", client, SNDCHAN_STATIC, 80, _, 0.65, .soundtime = GetGameTime() - 26.0);
+			EmitSoundToAll("music/hl1_song10.mp3", client, SNDCHAN_STATIC, 80, _, 0.65, .soundtime = GetGameTime() - 26.0);
 			DoingDupstep[client] = true;
 		}
 	}
