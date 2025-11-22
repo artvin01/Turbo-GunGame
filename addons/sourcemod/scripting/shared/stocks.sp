@@ -457,6 +457,10 @@ stock void TF2_SetPlayerClass_ZR(int client, TFClassType classType, bool weapons
 	}
 	
 	TF2_SetPlayerClass(client, classType, weapons, persistent);
+	
+	// This updates the player's hitboxes
+	SetVariantString("");
+	AcceptEntityInput(client, "SetCustomModel");
 }
 
 
@@ -993,13 +997,17 @@ stock void SetTeam(int entity, int teamSet)
 }
 
 
-stock bool IsValidEnemy(int index, int enemy, bool camoDetection=false, bool target_invul = false)
+stock bool IsValidEnemy(int index, int enemy)
 {
 	if(enemy <= 0)
 		return false;
 		
 	if(IsValidEntity(enemy))
 	{
+		if(!ValidTargetToHit[enemy])
+		{
+			return false;
+		}
 		if(index == enemy)
 		{
 			return false;
@@ -1008,18 +1016,12 @@ stock bool IsValidEnemy(int index, int enemy, bool camoDetection=false, bool tar
 		{
 			return false;
 		}
-
-		if(enemy <= MaxClients)
+		if(!mp_friendlyfire.IntValue && GetTeam(index) == GetTeam(enemy))
 		{
-			if(!mp_friendlyfire.IntValue && GetTeam(index) == GetTeam(enemy))
-			{
-				return false;
-			}
-			else
-			{
-				return IsEntityAlive(enemy, true);
-			}
+			return false;
 		}
+
+		return IsEntityAlive(enemy, true);
 	}
 	return false;
 }
@@ -1035,7 +1037,11 @@ stock bool IsEntityAlive(int index, bool WasValidAlready = false)
 		}
 		else
 		{
-			if(!IsPlayerAlive(index))
+			if(GetEntProp(index, Prop_Send, "m_iHealth") < 1)
+			{
+				return true;
+			}
+			else if(!IsPlayerAlive(index))
 			{
 				return false;	
 			}
@@ -1148,7 +1154,7 @@ public bool BulletAndMeleeTrace(int entity, int contentsMask, any iExclude)
 		return false;
 	}
 	
-	if(IsValidEnemy(iExclude, entity, true, true))
+	if(IsValidEnemy(iExclude, entity))
 		return !(entity == iExclude);
 
 	return !(entity == iExclude);
@@ -1334,4 +1340,47 @@ stock void TE_Particle(const char[] Name, float origin[3]=NULL_VECTOR, float sta
 	{
 		TE_SendToClient(clientspec, delay);
 	}
+}
+
+float GetClientSpeed(int client, bool horizontalOnly = false)
+{
+	float vecClientVel[3];
+	GetEntPropVector(client, Prop_Data, "m_vecVelocity", vecClientVel);
+	
+	float x, y, z;
+	x = vecClientVel[0];
+	y = vecClientVel[1];
+	
+	if (!horizontalOnly)
+		z = vecClientVel[2];
+	
+	return SquareRoot(x*x + y*y + z*z);
+}
+
+
+void CopyVector(const float from[3], float out[3])
+{
+	out[0] = from[0];
+	out[1] = from[1];
+	out[2] = from[2];
+}
+// interpolate between 2 values as a percentage
+float LerpValue(float p, float a, float b)
+{
+	return a + (b - a) * p;
+}
+public void Items_GrenadeTrajectory(const float angles[3], float velocity[3], float scale)
+{
+	velocity[0] = Cosine(DegToRad(angles[0])) * Cosine(DegToRad(angles[1])) * scale;
+	velocity[1] = Cosine(DegToRad(angles[0])) * Sine(DegToRad(angles[1])) * scale;
+	velocity[2] = Sine(DegToRad(angles[0])) * -scale;
+}
+bool IsPointTouchingBox(float pos[3], float mins[3], float maxs[3])
+{
+	if ( pos[0] < mins[0] || pos[0] > maxs[0] ||
+		 pos[1] < mins[1] || pos[1] > maxs[1] ||
+		 pos[2] < mins[2] || pos[2] > maxs[2] )
+		return false;
+		
+	return true;
 }

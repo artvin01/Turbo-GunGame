@@ -41,14 +41,44 @@ public void OnPostThink(int client)
 	if(delay_hud[client] < GameTime)	
 	{
 		delay_hud[client] = GameTime + 0.4;
+		
+		// Don't show HUD text if the round is won, we're switching maps, etc
+		if (GameRules_GetRoundState() >= RoundState_TeamWin)
+			return;
+		
 		char buffer[255];
 		float HudY = 0.8;
 		float HudX = -1.0;
 		SetHudTextParams(HudX, HudY, 0.81, 255, 165, 0, 255);
-		Format(buffer, sizeof(buffer), "(%i/%i)\n[%s]", ClientAtWhatScore[client], Cvar_GGR_WeaponsTillWin.IntValue, c_WeaponName[client]);
+		Format(buffer, sizeof(buffer), "(%i/%i)\n[%s]", ClientAtWhatScore[client] + 1, Cvar_GGR_WeaponsTillWin.IntValue, c_WeaponName[client]);
 		
-		if (ClientAssistsThisLevel[client] > 0)
+		bool ShowNextWeapon = true;
+		if(ClientAtWhatScore[client] + 1 >= Cvar_GGR_WeaponsTillWin.IntValue)
+			ShowNextWeapon = false;
+
+		if (!CanClientGetAssistCredit(client))
+		{
+			StrCat(buffer, sizeof(buffer), "\nYou're on the final rank and cannot rank up through assists!");
+		}
+		else if (ClientAssistsThisLevel[client] > 0)
+		{
 			StrCat(buffer, sizeof(buffer), "\nYou'll rank up on the next assist!");
+		}
+		else
+		{
+			StrCat(buffer, sizeof(buffer), "\n");
+		}
+		
+		if(ShowNextWeapon && WeaponListRound)
+		{
+			StrCat(buffer, sizeof(buffer), "\nNEXT:");
+			WeaponInfo Weplist;
+			WeaponListRound.GetArray(ClientAtWhatScore[client] + 1, Weplist);
+			ItemInfo info;
+			WeaponList.GetArray(Weplist.InternalWeaponID, info);
+			
+			Format(buffer, sizeof(buffer), "%s\n[%s]", buffer, info.WeaponName);
+		}
 		
 		ShowSyncHudText(client, SyncHud_GunGame, "%s", buffer);
 	}
@@ -82,7 +112,7 @@ public Action Player_TraceAttack(int victim, int& attacker, int& inflictor, floa
 	if(inflictor < 1 || inflictor > MaxClients)
 		return Plugin_Continue;
 		
-	if(!IsValidEnemy(attacker, victim, true, true))
+	if(!IsValidEnemy(attacker, victim))
 		return Plugin_Continue;
 	i_HasBeenHeadShotted[victim] = false;
 	
@@ -170,13 +200,16 @@ public Action Player_OnTakeDamage(int victim, int &attacker, int &inflictor, flo
 	}
 
 	i_WeaponKilledWith[victim] = weapon;
+	if(damagetype & DMG_FALL)
+	{
+		damage *= Attributes_Get(victim, Attrib_MultiplyFallDamage, 1.0);
+	}
 	if (damagecustom == TF_CUSTOM_KART)
 	{
 		damage *= 3.0;
-		return Plugin_Changed;
 	}
 	
-	return Plugin_Continue;
+	return Plugin_Changed;
 }
 
 static Action OnPlayerJarated(UserMsg msg_id, BfRead bf, const int[] players, int playersNum, bool reliable, bool init)

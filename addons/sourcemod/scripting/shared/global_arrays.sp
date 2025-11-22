@@ -29,6 +29,7 @@ int m_Item;
 //bool IsInsideManageRegularWeapons;
 int iref_PropAppliedToRocket[MAXENTITIES];
 float f_RoundStartUberLastsUntil;
+bool b_DisableCollisionOnRoundStart;
 
 ConVar tf_scout_air_dash_count;
 
@@ -63,6 +64,7 @@ int i_WandOwner[MAXENTITIES]; //				//785
 int i_WeaponKilledWith[MAXPLAYERS];
 
 int StoreWeapon[MAXENTITIES];
+bool ValidTargetToHit[MAXENTITIES];
 
 Function EntityFuncAttack[MAXENTITIES];
 Function EntityFuncAttack2[MAXENTITIES];

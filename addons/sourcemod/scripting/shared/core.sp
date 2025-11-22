@@ -72,14 +72,22 @@
 #include "weapons/weapon_default_wand.sp"
 #include "weapons/weapon_ant_jar.sp"
 #include "weapons/weapon_builder.sp"
+#include "weapons/weapon_toucher.sp"
 #include "weapons/weapon_wand_gravaton.sp"
 #include "weapons/weapon_vehicular_manslaughter.sp"
 #include "weapons/weapon_bonk_bat.sp"
+#include "weapons/weapon_sharedtakedamage.sp"
+#include "weapons/weapon_sharedfuncattack.sp"
+#include "weapons/weapon_kamikaze.sp"
+#include "weapons/weapon_ant_eraser.sp"
+#include "weapons/weapon_dupstepgun.sp"
+#include "weapons/weapon_cow_mangler.sp"
+#include "weapons/weapon_scp018.sp"
 
 public Plugin myinfo =
 {
 	name		=	"Gun Game Riot",
-	author		=	"Artvin",
+	author		=	"Artvin, wo",
 	description	=	"Gun Game But taken to the extreme",
 	version		=	"manual"
 };
@@ -170,8 +178,12 @@ public void OnMapStart()
 	Gravaton_Wand_MapStart();
 	VehicularManslaughter_Precache();
 	BonkBat_MapStart();
+	SharedTakeDamage_Mapstart();
+	KamikazeMapStart();
+	DupStepGunMapStart();
+	CowMangler_Precache();
+	Init_SCP18();
 }
-
 public void OnConfigsExecuted()
 {
 	ConVar_Enable();
@@ -195,8 +207,12 @@ public void OnClientPutInServer(int client)
 	Core_DoTickrateChanges();
 	
 	SDKHook_HookClient(client);
+	ValidTargetToHit[client] = true;
 }
-
+public void OnGameFrame()
+{
+	SCP18_Tick();
+}
 public void OnEntityCreated(int entity, const char[] classname)
 {
 	if (entity < 0)
@@ -206,6 +222,7 @@ public void OnEntityCreated(int entity, const char[] classname)
 	if (!IsValidEntity(entity))
 		return;
 
+	ValidTargetToHit[entity] = false;
 	i_SavedActualWeaponSlot[entity] = -1;
 	b_IsATrigger[entity] = false;
 	b_IsATriggerHurt[entity] = false;
@@ -218,6 +235,10 @@ public void OnEntityCreated(int entity, const char[] classname)
 	else if (!StrContains(classname, "tf_weapon_medigun")) 
 	{
 		b_IsAMedigun[entity] = true;
+	}
+	else if (!StrContains(classname, "tf_ammo_pack")) 
+	{
+		SDKHook(entity, SDKHook_SpawnPost, Delete_instantly);
 	}
 	else if(!StrContains(classname, "tf_projecti"))
 	{
@@ -236,6 +257,10 @@ public void OnEntityCreated(int entity, const char[] classname)
 	else if(!StrContains(classname, "item_healthkit_medium"))
 	{
 		SDKHook(entity, SDKHook_Touch, SandvichTouch);
+	}
+	else if(!StrContains(classname, "obj_"))
+	{
+		ValidTargetToHit[entity] = true;
 	}
 }
 
@@ -277,6 +302,10 @@ void Core_DoTickrateChanges()
 	TickrateModify = tickrate / 66.0;
 }
 
+public void Delete_instantly(int entity)
+{
+	RemoveEntity(entity);
+}
 
 
 

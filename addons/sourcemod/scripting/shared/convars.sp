@@ -32,6 +32,7 @@ void ConVar_PluginStart()
 	ConVar_Add("tf_avoidteammates_pushaway", "0"); 
 	ConVar_Add("tf_dropped_weapon_lifetime", "0.0"); //Remove dropped weapons
 	ConVar_Add("tf_spawn_glows_duration", "0.0"); //No glow duration
+	ConVar_Add("tf_avoidteammates", "0.0"); //No glow duration
 
 }
 

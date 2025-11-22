@@ -564,7 +564,7 @@ enum struct WeaponInfo
 	int InternalWeaponID;
 	float ScoreSave;
 }
-static ArrayList WeaponListRound;
+ArrayList WeaponListRound;
 void Weapons_ResetRound()
 {
 	Zero(ClientAtWhatScore);

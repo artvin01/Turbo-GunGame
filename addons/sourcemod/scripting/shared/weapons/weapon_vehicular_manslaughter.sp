@@ -29,16 +29,38 @@ static char g_strKartSounds[][] = {
 
 public void VehicularManslaughter_WeaponCreated(int client, int weapon)
 {
+	SDKUnhook(client, SDKHook_StartTouchPost, VehicularManslaughter_StartTouchPost);
+	SDKHook(client, SDKHook_StartTouchPost, VehicularManslaughter_StartTouchPost);
+	
 	TF2_AddCondition(client, TFCond_HalloweenKart);
 }
 
 public void VehicularManslaughter_WeaponRemoved(int client, int weapon)
 {
+	SDKUnhook(client, SDKHook_StartTouchPost, VehicularManslaughter_StartTouchPost);
 	TF2_RemoveCondition(client, TFCond_HalloweenKart);
+	TF2_RemoveCondition(client, TFCond_HalloweenKartDash);
 }
 
 public void VehicularManslaughter_Precache()
 {
 	for (int i = 0; i < sizeof(g_strKartSounds); i++)
 		PrecacheSound(g_strKartSounds[i]);
+}
+
+void VehicularManslaughter_StartTouchPost(int client, int other)
+{
+	// We can't bump teammates, so we run them over instead
+	if (!IsValidClient(other) || TF2_GetClientTeam(client) != TF2_GetClientTeam(other))
+		return;
+	
+	if (!TF2_IsPlayerInCondition(client, TFCond_HalloweenKart))
+	{
+		SDKUnhook(client, SDKHook_StartTouchPost, VehicularManslaughter_StartTouchPost);
+		return;
+	}
+	
+	// Kart dash sets your speed to 1000.0, 333 dmg at max speed vs ~285 from bumping enemies, but no knockback
+	float damage = GetClientSpeed(client) * 0.33;
+	SDKHooks_TakeDamage(other, client, client, damage, DMG_PREVENT_PHYSICS_FORCE, _, {0.0, 0.0, 0.0});
 }

@@ -31,7 +31,7 @@ public Action OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	}
 	if(RankUp)
 	{
-		if(IsValidClient(attacker) && attacker != victim)
+		if(IsValidClient(attacker) && attacker != victim && GameRules_GetRoundState() <= RoundState_RoundRunning)
 		{
 			ClientKillsThisFrame[attacker]++;
 			
@@ -73,7 +73,7 @@ public Action OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 bool CanClientGetAssistCredit(int client)
 {
 	// Can't get assists on last rank
-	return (ClientAtWhatScore[client] < Cvar_GGR_WeaponsTillWin.IntValue);
+	return (ClientAtWhatScore[client] + 1 < Cvar_GGR_WeaponsTillWin.IntValue);
 }
 
 stock void DelayFrame_RankPlayerUp(int userid)
@@ -164,6 +164,7 @@ public void OnPlayerResupply(Event event, const char[] name, bool dontBroadcast)
 	Weapons_ApplyAttribs(client);
 	SDKCall_GiveCorrectAmmoCount(client);
 	RequestFrame(GiveWeaponLate, GetClientUserId(client));
+	RequestFrame(Frame_GiveRoundStartConds, GetClientUserId(client));
 }
 
 stock void GiveWeaponLate(int userid)
@@ -174,22 +175,80 @@ stock void GiveWeaponLate(int userid)
 
 	GiveClientWeapon(client);
 }
+
+void Frame_GiveRoundStartConds(int userid)
+{
+	float gameTime = GetGameTime();
+	if (f_RoundStartUberLastsUntil <= gameTime)
+		return;
+	
+	int client = GetClientOfUserId(userid);
+	if(!IsValidEntity(client))
+		return;
+	
+	TF2_AddCondition(client, TFCond_UberchargedCanteen, f_RoundStartUberLastsUntil - gameTime);
+	
+	if (b_DisableCollisionOnRoundStart)
+		SetEntityCollisionGroup(client, TFCOLLISION_GROUP_COMBATOBJECT);
+}
+
 public void OnRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	Weapons_ResetRound();
 	
-	const float flFreezeTime = 5.0;
+	const float freezeTime = 5.0;
+	const float extraUberTime = 1.5;
+	
 	float gameTime = GetGameTime();
-	f_RoundStartUberLastsUntil = gameTime + flFreezeTime + 1.0;
+	f_RoundStartUberLastsUntil = gameTime + freezeTime + extraUberTime;
+	b_DisableCollisionOnRoundStart = false;
+	
+	int clients, spawnpoints;
 	
 	for (int client = 1; client <= MaxClients; client++)
 	{
 		if (IsValidClient(client) && IsPlayerAlive(client))
 		{
+			clients++;
+			
 			GiveClientWeapon(client, 0);
 			TF2_AddCondition(client, TFCond_UberchargedCanteen, f_RoundStartUberLastsUntil - gameTime);
 		}
 	}
+	
+	int entity = -1;
+	while ((entity = FindEntityByClassname(entity, "info_player_teamspawn")) != -1)
+	{
+		if (!GetEntProp(entity, Prop_Data, "m_bDisabled"))
+			spawnpoints++;
+	}
+	
+	if (clients > spawnpoints)
+	{
+		b_DisableCollisionOnRoundStart = true;
+		CreateTimer(freezeTime + extraUberTime, Timer_EnableCollision, _, TIMER_FLAG_NO_MAPCHANGE);
+		
+		for (int client = 1; client <= MaxClients; client++)
+		{
+			if (IsValidClient(client) && IsPlayerAlive(client))
+			{
+				SetEntityCollisionGroup(client, TFCOLLISION_GROUP_COMBATOBJECT);
+			}
+		}
+	}
+}
+
+Action Timer_EnableCollision(Handle timer)
+{
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (IsValidClient(client) && IsPlayerAlive(client))
+		{
+			SetEntityCollisionGroup(client, COLLISION_GROUP_PLAYER);
+		}
+	}
+	
+	return Plugin_Continue;
 }
 
 void OnTFPlayerManagerThinkPost(int entity)
