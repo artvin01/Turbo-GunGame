@@ -29,25 +29,23 @@ public Action BonkBat_OnTakeDamage(int victim, int &attacker, int &inflictor, fl
         SetEntPropEnt(victim, Prop_Send, "m_hGroundEntity", -1);
         SetEntProp(victim, Prop_Data, "m_fFlags", (GetEntProp(victim, Prop_Data, "m_fFlags") & ~FL_ONGROUND));
         
-        CreateTimer(0.1, BonkBat_PostTakeDamage, victim, _); // this kinda sucks ngl
+        float vel[3];
+        GetEntPropVector(victim, Prop_Data, "m_vecAbsVelocity", vel);  
         
+        float scale = 450.0;
+        
+        ScaleVector(vel, scale);
+        
+        vel[2] += scale;
+        
+        Custom_SetAbsVelocity(victim, vel);
+    
+        Attributes_Set(victim, Attrib_MultiplyFallDamage, 200.0);
+              
         return Plugin_Changed;
     }
     
     return Plugin_Continue;
-}
-
-public void BonkBat_PostTakeDamage(int victim)
-{
-    float vel[3];
-    GetEntPropVector(victim, Prop_Data, "m_vecAbsVelocity", vel);
-    
-    vel[2] = BonkBat_Max(vel[2], 1.0);
-    vel[2] * 1000.0;
-    
-    Custom_SetAbsVelocity(victim, vel);
-    
-    Attributes_Set(victim, Attrib_MultiplyFallDamage, 200.0);
 }
 
 public float BonkBat_Max(float f1, float f2)
