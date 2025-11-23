@@ -329,7 +329,7 @@ void ViewChange_Switch(int client, int active, const char[] classname)
 					class = view_as<TFClassType>(i_WeaponForceClass[active]);
 				}
 			}
-			if(!Cvar_GGR_AllowFreeClassPicking.IntValue)
+			if(!Cvar_TGG_AllowFreeClassPicking.IntValue)
 				CurrentClass[client] = class;
 
 			

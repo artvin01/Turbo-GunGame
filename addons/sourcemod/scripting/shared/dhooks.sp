@@ -26,13 +26,12 @@ void DHook_Setup()
 	DHook_CreateDetour(gamedata, "CTFPlayer::SpeakConceptIfAllowed()", SpeakConceptIfAllowed_Pre, SpeakConceptIfAllowed_Post);
 	DHook_CreateDetour(gamedata, "CTFGameRules::CalcPlayerScore", Detour_CalcPlayerScore);
 
-	g_DHookRocketExplode = DHook_CreateVirtual(gamedata, "CTFBaseRocket::Explode");
 	HookItemIterateAttribute = DynamicHook.FromConf(gamedata, "CEconItemView::IterateAttributes");
 	m_Item = FindSendPropInfo("CEconEntity", "m_Item");
 	FindSendPropInfo("CEconEntity", "m_bOnlyIterateItemViewAttributes", _, _, m_bOnlyIterateItemViewAttributes);
 }
 
-static DynamicHook DHook_CreateVirtual(GameData gamedata, const char[] name)
+stock DynamicHook DHook_CreateVirtual(GameData gamedata, const char[] name)
 {
 	DynamicHook hook = DynamicHook.FromConf(gamedata, name);
 	if (!hook)
@@ -45,7 +44,7 @@ public MRESReturn DHook_ManageRegularWeaponsPre(int client, DHookParam param)
 	// Gives our desired class's wearables
 //	IsInsideManageRegularWeapons = true;
 	//select their class here again.
-	if(Cvar_GGR_AllowFreeClassPicking.IntValue)
+	if(Cvar_TGG_AllowFreeClassPicking.IntValue)
 		CurrentClass[client] = view_as<TFClassType>(GetEntProp(client, Prop_Send, "m_iDesiredPlayerClass"));
 
 

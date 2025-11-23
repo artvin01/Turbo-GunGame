@@ -1,13 +1,12 @@
 #pragma semicolon 1
 #pragma newdecls required
 
-static int i_ProjectileIndex;
 Function func_WandOnTouch[MAXENTITIES];
 #define ENERGY_BALL_MODEL	"models/weapons/w_models/w_drg_ball.mdl"
 
 void WandStocks_Map_Precache()
 {
-	i_ProjectileIndex = PrecacheModel(ENERGY_BALL_MODEL);
+	PrecacheModel(ENERGY_BALL_MODEL);
 }
 
 stock void WandProjectile_ApplyFunctionToEntity(int projectile, Function Function)

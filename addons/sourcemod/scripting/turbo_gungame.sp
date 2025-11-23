@@ -1,6 +1,6 @@
 #include <sourcemod>
 
-#define GGR
+#define TGG
 
 #define TGG_PREFIX  "{crimson}[TGG]{snow}"
 

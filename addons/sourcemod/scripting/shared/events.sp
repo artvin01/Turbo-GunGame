@@ -77,7 +77,7 @@ public Action OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 bool CanClientGetAssistCredit(int client)
 {
 	// Can't get assists on last rank
-	return (ClientAtWhatScore[client] + 1 < Cvar_GGR_WeaponsTillWin.IntValue);
+	return (ClientAtWhatScore[client] + 1 < Cvar_TGG_WeaponsTillWin.IntValue);
 }
 
 stock void DelayFrame_RankPlayerUp(int userid)
@@ -98,10 +98,10 @@ stock void DelayFrame_RankPlayerUp(int userid)
 	ClientAssistsThisLevel[client] = 0;
 	ClientKillsThisFrame[client] = 0;
 	
-	if(ClientAtWhatScore[client] >= Cvar_GGR_WeaponsTillWin.IntValue && GameRules_GetRoundState() == RoundState_RoundRunning)
+	if(ClientAtWhatScore[client] >= Cvar_TGG_WeaponsTillWin.IntValue && GameRules_GetRoundState() == RoundState_RoundRunning)
 	{
 		//epic win
-		ClientAtWhatScore[client] = Cvar_GGR_WeaponsTillWin.IntValue;
+		ClientAtWhatScore[client] = Cvar_TGG_WeaponsTillWin.IntValue;
 		
 		// Make this prettier later i dunno
 		CPrintToChatAll("%s %N wins the game!", TGG_PREFIX, client);
@@ -136,7 +136,7 @@ public void OnPlayerResupply(Event event, const char[] name, bool dontBroadcast)
 	//SetEntProp(client, Prop_Send, "m_iHideHUD", GetEntProp(client, Prop_Send, "m_iHideHUD") | HIDEHUD_BUILDING_STATUS | HIDEHUD_CLOAK_AND_FEIGN);
 	TF2_RemoveAllWeapons(client); //Remove all weapons. No matter what.
 
-	if(Cvar_GGR_AllowFreeClassPicking.IntValue)
+	if(Cvar_TGG_AllowFreeClassPicking.IntValue)
 		CurrentClass[client] = view_as<TFClassType>(GetEntProp(client, Prop_Send, "m_iDesiredPlayerClass"));
 
 	ViewChange_DeleteHands(client);

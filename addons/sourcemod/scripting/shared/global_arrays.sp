@@ -4,8 +4,8 @@
 float TickrateModify;
 //int TickrateModifyInt;
 
-ConVar Cvar_GGR_WeaponsTillWin;
-ConVar Cvar_GGR_AllowFreeClassPicking;
+ConVar Cvar_TGG_WeaponsTillWin;
+ConVar Cvar_TGG_AllowFreeClassPicking;
 
 
 Handle g_hSetLocalOrigin;
@@ -23,7 +23,6 @@ Handle g_hImpulse;
 ArrayList RawEntityHooks;
 ConVar sv_cheats;
 ConVar mp_friendlyfire;
-DynamicHook g_DHookRocketExplode; //from mikusch but edited
 int m_bOnlyIterateItemViewAttributes;
 int m_Item;
 //bool IsInsideManageRegularWeapons;

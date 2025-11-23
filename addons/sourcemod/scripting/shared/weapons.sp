@@ -590,10 +590,10 @@ void Weapons_ResetRound()
 
 	SortIntegers(WeaponsPicking, length, Sort_Random);
 	
-	int MaxWeapons = Cvar_GGR_WeaponsTillWin.IntValue;
+	int MaxWeapons = Cvar_TGG_WeaponsTillWin.IntValue;
 	if(MaxWeapons > length)
 	{
-		Cvar_GGR_WeaponsTillWin.IntValue = length;
+		Cvar_TGG_WeaponsTillWin.IntValue = length;
 		MaxWeapons = length;
 	}
 	
@@ -637,13 +637,13 @@ void GiveClientWeapon(int client, int Upgrade = 0)
 	ClientAtWhatScore[client] = GiveWeapon;
 	
 	// Don't give a weapon if we're beyond the max rank
-	if(GiveWeapon >= Cvar_GGR_WeaponsTillWin.IntValue)
+	if(GiveWeapon >= Cvar_TGG_WeaponsTillWin.IntValue)
 		return;
 	
 	if (Upgrade >= 1)
 		EmitSoundToClient(client, SOUND_LEVELUP, _, SNDCHAN_STATIC, SNDLEVEL_NONE);
 	
-	if(GiveWeapon + 4 >= Cvar_GGR_WeaponsTillWin.IntValue)
+	if(GiveWeapon + 4 >= Cvar_TGG_WeaponsTillWin.IntValue)
 	{
 		SetEntProp(client, Prop_Send, "m_bGlowEnabled", true);
 	}
@@ -651,7 +651,7 @@ void GiveClientWeapon(int client, int Upgrade = 0)
 	{
 		SetEntProp(client, Prop_Send, "m_bGlowEnabled", false);
 	}
-	if(GiveWeapon + 1 >= Cvar_GGR_WeaponsTillWin.IntValue)
+	if(GiveWeapon + 1 >= Cvar_TGG_WeaponsTillWin.IntValue)
 	{
 		SetEntProp(client, Prop_Send, "m_bGlowEnabled", true);
 		TF2_AddCondition(client, TFCond_MarkedForDeath, 9999.9);

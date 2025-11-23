@@ -50,10 +50,10 @@ public void OnPostThink(int client)
 		float HudY = 0.8;
 		float HudX = -1.0;
 		SetHudTextParams(HudX, HudY, 0.81, 255, 165, 0, 255);
-		Format(buffer, sizeof(buffer), "(%i/%i)\n[%s]", ClientAtWhatScore[client] + 1, Cvar_GGR_WeaponsTillWin.IntValue, c_WeaponName[client]);
+		Format(buffer, sizeof(buffer), "(%i/%i)\n[%s]", ClientAtWhatScore[client] + 1, Cvar_TGG_WeaponsTillWin.IntValue, c_WeaponName[client]);
 		
 		bool ShowNextWeapon = true;
-		if(ClientAtWhatScore[client] + 1 >= Cvar_GGR_WeaponsTillWin.IntValue)
+		if(ClientAtWhatScore[client] + 1 >= Cvar_TGG_WeaponsTillWin.IntValue)
 			ShowNextWeapon = false;
 
 		if (!CanClientGetAssistCredit(client))
