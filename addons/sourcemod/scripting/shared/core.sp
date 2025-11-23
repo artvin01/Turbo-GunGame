@@ -75,6 +75,7 @@
 #include "weapons/weapon_toucher.sp"
 #include "weapons/weapon_wand_gravaton.sp"
 #include "weapons/weapon_vehicular_manslaughter.sp"
+#include "weapons/weapon_bonk_bat.sp"
 #include "weapons/weapon_sharedtakedamage.sp"
 #include "weapons/weapon_sharedfuncattack.sp"
 #include "weapons/weapon_kamikaze.sp"
@@ -167,7 +168,7 @@ public void OnMapStart()
 	AddFileToDownloadsTable("materials/models/custom_weaponry/weaponry_solid_white_2.vtf");
 	AddFileToDownloadsTable("materials/models/custom_weaponry/weaponry_trans_white.vtf");
 	AddFileToDownloadsTable("materials/models/custom_weaponry/weaponry_trans_white_2.vtf");
-
+	
 	Zero(h_NpcSolidHookType);
 	Weapon_Arrow_Shoot_Map_Precache();
 	BoomStick_MapPrecache();
@@ -176,6 +177,7 @@ public void OnMapStart()
 	Wand_Map_Precache();
 	Gravaton_Wand_MapStart();
 	VehicularManslaughter_Precache();
+	BonkBat_MapStart();
 	SharedTakeDamage_Mapstart();
 	KamikazeMapStart();
 	DupStepGunMapStart();
