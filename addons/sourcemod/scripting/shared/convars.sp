@@ -20,7 +20,7 @@ void ConVar_ConfigsExecuted()
 	CvarList = new ArrayList(sizeof(CvarInfo));
 
 	sv_cheats = ConVar_Add("sv_cheats", "0", false, (FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_CHEAT));
-	mp_friendlyfire = ConVar_Add("mp_friendlyfire", "1", false, (FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_CHEAT));
+	mp_friendlyfire = ConVar_Add("mp_friendlyfire", "1", true, (FCVAR_NOTIFY | FCVAR_CHEAT));
 	tf_scout_air_dash_count = ConVar_Add("tf_scout_air_dash_count", "0", false); 
 
 	Cvar_TGG_WeaponsTillWin = CreateConVar("tgg_weapons_till_win", "25", "How many kills untill a player wins");
@@ -33,6 +33,7 @@ void ConVar_ConfigsExecuted()
 	ConVar_Add("tf_dropped_weapon_lifetime", "0.0"); //Remove dropped weapons
 	ConVar_Add("tf_spawn_glows_duration", "0.0"); //No glow duration
 	ConVar_Add("tf_avoidteammates", "0.0"); //No glow duration
+	ConVar_ToggleDo();
 
 }
 
@@ -122,6 +123,8 @@ stock void ConVar_RemoveTemp(const char[] name)
 //its better to-inforce the flags.
 void ConVar_ToggleDo()
 {
+	if(!CvarList)
+		return;
 	CvarInfo info;
 	int length = CvarList.Length;
 	for(int i; i<length; i++)
