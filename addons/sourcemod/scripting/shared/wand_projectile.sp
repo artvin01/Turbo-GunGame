@@ -12,7 +12,7 @@ void WandStocks_Map_Precache()
 stock void WandProjectile_ApplyFunctionToEntity(int projectile, Function Function)
 {
 	func_WandOnTouch[projectile] = Function;
-	ProjectileBaseThink(projectile);
+	ProjectileBaseThinkInternal(Projectile, 3.0);
 }
 
 stock Function func_WandOnTouchReturn(int entity)
@@ -119,7 +119,8 @@ float CustomPos[3] = {0.0,0.0,0.0}) //This will handle just the spawning, the re
 		SetEntityCollisionGroup(entity, 27);
 
 		SetEntityModel(entity, ENERGY_BALL_MODEL);
-		RunScriptCode(entity, -1, -1, "self.SetMoveType(Constants.EMoveType.MOVETYPE_FLY, Constants.EMoveCollide.MOVECOLLIDE_FLY_CUSTOM)");
+		SetEntityMoveType(entity, MOVETYPE_FLY);
+		//RunScriptCode(entity, -1, -1, "self.SetMoveType(Constants.EMoveType.MOVETYPE_FLY, Constants.EMoveCollide.MOVECOLLIDE_FLY_CUSTOM)");
 		Custom_SetAbsVelocity(entity, fVel);	
 		
 		if(hideprojectile)
@@ -170,6 +171,10 @@ float CustomPos[3] = {0.0,0.0,0.0}) //This will handle just the spawning, the re
 
 public void ProjectileBaseThink(int Projectile)
 {	
+	ProjectileBaseThinkInternal(Projectile, 1.0);
+}
+public void ProjectileBaseThinkInternal(int Projectile, float Multi = 3.0)
+{	
 	/*
 		Why does this exist?
 		When using FSOLID_NOT_SOLID | FSOLID_TRIGGER to fix projectiles getting stuck in npcs i.e. setting speed to 0
@@ -180,8 +185,6 @@ public void ProjectileBaseThink(int Projectile)
 
 		This fires a trace ourselves and calls whatever we need.
 	*/
-	if(!IsValidEntity(Projectile))
-		return;
 	ArrayList Projec_HitEntitiesInTheWay = new ArrayList();
 	DataPack packFilter = new DataPack();
 	packFilter.WriteCell(Projec_HitEntitiesInTheWay);
@@ -192,9 +195,9 @@ public void ProjectileBaseThink(int Projectile)
 	static float CurrentVelocity[3];
 	GetEntPropVector(Projectile, Prop_Data, "m_vecAbsVelocity", CurrentVelocity);
 
-	CurrentVelocity[0] *= 0.02;
-	CurrentVelocity[1] *= 0.02;
-	CurrentVelocity[2] *= 0.02;
+	CurrentVelocity[0] *= 0.02 * Multi;
+	CurrentVelocity[1] *= 0.02 * Multi;
+	CurrentVelocity[2] *= 0.02 * Multi;
 
 	static float VecEndLocation[3];
 	VecEndLocation[0] = AbsOrigin[0] + CurrentVelocity[0];
