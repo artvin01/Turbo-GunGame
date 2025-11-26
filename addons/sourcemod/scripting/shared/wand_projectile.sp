@@ -108,6 +108,7 @@ float CustomPos[3] = {0.0,0.0,0.0}) //This will handle just the spawning, the re
 		SetTeam(entity, GetTeam(client));
 		int frame = GetEntProp(entity, Prop_Send, "m_ubInterpolationFrame");
 		Custom_SDKCall_SetLocalOrigin(entity, fPos);
+		SDKCall_SetAbsOrigin(entity, fPos);
 		DispatchSpawn(entity);
 		SetEntPropVector(entity, Prop_Send, "m_angRotation", fAng); //set it so it can be used
 		SetEntPropVector(entity, Prop_Data, "m_angRotation", fAng); 
