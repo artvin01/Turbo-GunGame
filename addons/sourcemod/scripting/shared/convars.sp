@@ -27,12 +27,14 @@ void ConVar_ConfigsExecuted()
 	Cvar_TGG_AllowFreeClassPicking = CreateConVar("tgg_allowfreeclasspicking", "0", "are players allowed to have classes for vanity");
 	ConVar_Add("tf_weapon_criticals_distance_falloff", "1.0"); //Remove crits
 	ConVar_Add("tf_weapon_minicrits_distance_falloff", "1.0"); //Remove crits
-	ConVar_Add("tf_weapon_criticals", "0.0");		//Remove crits
+	ConVar_Add("tf_weapon_criticals", "0.0");			//Remove crits
 	ConVar_Add("tf_weapon_criticals_melee", "0.0");		//Remove crits
 	ConVar_Add("tf_avoidteammates_pushaway", "0"); 
-	ConVar_Add("tf_dropped_weapon_lifetime", "0.0"); //Remove dropped weapons
-	ConVar_Add("tf_spawn_glows_duration", "0.0"); //No glow duration
-	ConVar_Add("tf_avoidteammates", "0.0"); //No glow duration
+	ConVar_Add("tf_dropped_weapon_lifetime", "0.0"); 	//Remove dropped weapons
+	ConVar_Add("tf_spawn_glows_duration", "0.0"); 		//No glow duration
+	ConVar_Add("tf_avoidteammates", "0.0"); 			//always touch
+//	ConVar_Add("mp_humans_must_join_team", "red"); 		//only reds allowed
+	ConVar_Add("mp_autoteambalance", "0"); 				//balance
 	ConVar_ToggleDo();
 
 }
