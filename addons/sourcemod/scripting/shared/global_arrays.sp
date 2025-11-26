@@ -5,8 +5,6 @@ float TickrateModify;
 //int TickrateModifyInt;
 
 ConVar Cvar_TGG_WeaponsTillWin;
-ConVar Cvar_TGG_AllowFreeClassPicking;
-
 
 Handle g_hSetLocalOrigin;
 Handle g_hSetLocalAngles;
@@ -48,9 +46,7 @@ float f_WeaponSizeOverrideViewmodel[MAXENTITIES];
 char c_WeaponUseAbilitiesHud[MAXENTITIES][16];
 char c_WeaponName[MAXPLAYERS][64];
 int i_Hex_WeaponUsesTheseAbilities[MAXENTITIES];
-int i_Viewmodel_PlayerModel[MAXENTITIES] = {-1, ...};
 int i_Worldmodel_WeaponModel[MAXPLAYERS] = {-1, ...};
-int i_PlayerModelOverrideIndexWearable[MAXPLAYERS] = {-1, ...};
 bool b_HideCosmeticsPlayer[MAXPLAYERS];
 int WeaponRef_viewmodel[MAXPLAYERS] = {-1, ...};
 int HandRef[MAXPLAYERS] = {-1, ...};
@@ -76,7 +72,6 @@ Function EntityFuncRemove[MAXENTITIES];
 Function EntityFuncJarate[MAXENTITIES];
 Function EntityFuncTakeDamage[MAXENTITIES];
 TFClassType CurrentClass[MAXPLAYERS]={TFClass_Scout, ...};
-TFClassType WeaponClass[MAXPLAYERS]={TFClass_Scout, ...};
 
 
 int g_particleCritText;

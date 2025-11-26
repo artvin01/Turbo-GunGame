@@ -391,7 +391,6 @@ int Weapons_GiveItem(int client, int index, bool &use=false, bool &found=false)
 		}
 	}
 
-	ViewChange_PlayerModel(client);
 	ViewChange_Update(client);
 	
 	Event event = CreateEvent("localplayer_pickup_weapon", true);
@@ -501,7 +500,7 @@ void Weapons_ApplyAttribs(int client)
 
 	Attributes_RemoveAll(client);
 	
-	TFClassType ClassForStats = WeaponClass[client];
+	TFClassType ClassForStats = CurrentClass[client];
 	
 	StringMap map = new StringMap();
 
@@ -703,6 +702,30 @@ void GiveClientWeapon(int client, int Upgrade = 0)
 	if(!IsValidEntity(weapon))
 		return;
 		//idk lol
+	
+	char classname[36];
+	int itemdefindex = GetEntProp(weapon, Prop_Send, "m_iItemDefinitionIndex");
+	TFClassType class = TF2_GetWeaponClass(itemdefindex, _, TF2_GetClassnameSlot(classname, true));
+
+	if(i_WeaponForceClass[weapon] > 0)
+	{
+		if(i_WeaponForceClass[weapon] > 10) //it is an allclass weapon, we want to force the weapon into the class the person holds
+		//some weapons for engi or spy just don do this and take pyro and look ugly as fuck.
+		{
+			//exception for engineer, hes always bugged, force medic.
+			class = view_as<TFClassType>(CurrentClass[client]);
+			if(class == TFClass_Engineer)
+			{
+				class = TFClass_Medic;
+			}
+		}
+		else
+		{
+			class = view_as<TFClassType>(i_WeaponForceClass[weapon]);
+		}
+	}
+	CurrentClass[client] = class;
+
 	char buffer[36];
 	GetEntityClassname(weapon, buffer, sizeof(buffer));
 	if(TF2_GetClassnameSlot(buffer, weapon) != 2) //no melee  weapon,give deranker

@@ -41,13 +41,6 @@ stock DynamicHook DHook_CreateVirtual(GameData gamedata, const char[] name)
 }
 public MRESReturn DHook_ManageRegularWeaponsPre(int client, DHookParam param)
 {
-	// Gives our desired class's wearables
-//	IsInsideManageRegularWeapons = true;
-	//select their class here again.
-	if(Cvar_TGG_AllowFreeClassPicking.IntValue)
-		CurrentClass[client] = view_as<TFClassType>(GetEntProp(client, Prop_Send, "m_iDesiredPlayerClass"));
-
-
 	if(!CurrentClass[client])
 	{
 		CurrentClass[client] = TFClass_Scout;
@@ -206,6 +199,7 @@ public MRESReturn DHook_IterateAttributesPost(Address pThis, DHookParam hParams)
 
 public MRESReturn SpeakConceptIfAllowed_Pre(int client, DHookReturn returnHook, DHookParam param)
 {
+	/*
 	for(int client_2=1; client_2<=MaxClients; client_2++)
 	{
 		if(IsClientInGame(client_2))
@@ -217,10 +211,12 @@ public MRESReturn SpeakConceptIfAllowed_Pre(int client, DHookReturn returnHook, 
 			TF2_SetPlayerClass_ZR(client_2, CurrentClass[client_2], false, false);
 		}
 	}
+	*/
 	return MRES_Ignored;
 }
 public MRESReturn SpeakConceptIfAllowed_Post(int client, Handle hReturn, Handle hParams)
 {
+	/*
 	for(int client_2=1; client_2<=MaxClients; client_2++)
 	{
 		if(IsClientInGame(client_2))
@@ -235,6 +231,7 @@ public MRESReturn SpeakConceptIfAllowed_Post(int client, Handle hReturn, Handle 
 			}
 		}
 	}
+	*/
 	return MRES_Ignored;
 }
 

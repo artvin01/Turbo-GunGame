@@ -486,20 +486,6 @@ stock bool IsValidClient( int client)
 	return true; 
 }
 
-void UpdatePlayerFakeModel(int client)
-{
-	int PlayerModel = EntRefToEntIndex(i_Viewmodel_PlayerModel[client]);
-	if(PlayerModel <= 0)
-		return;
-
-	SDKCall_RecalculatePlayerBodygroups(client);
-	int i_nm_body_client = GetEntProp(client, Prop_Data, "m_nBody");
-	SetEntProp(PlayerModel, Prop_Send, "m_nBody", i_nm_body_client);
-}
-
-
-
-
 stock float ClassHealth(TFClassType class)
 {
 	switch(class)

@@ -149,9 +149,6 @@ public void OnPlayerResupply(Event event, const char[] name, bool dontBroadcast)
 	//SetEntProp(client, Prop_Send, "m_iHideHUD", GetEntProp(client, Prop_Send, "m_iHideHUD") | HIDEHUD_BUILDING_STATUS | HIDEHUD_CLOAK_AND_FEIGN);
 	TF2_RemoveAllWeapons(client); //Remove all weapons. No matter what.
 
-	if(Cvar_TGG_AllowFreeClassPicking.IntValue)
-		CurrentClass[client] = view_as<TFClassType>(GetEntProp(client, Prop_Send, "m_iDesiredPlayerClass"));
-
 	ViewChange_DeleteHands(client);
 	ViewChange_UpdateHands(client, CurrentClass[client]);
 	TF2_SetPlayerClass_ZR(client, CurrentClass[client], false, false);
@@ -176,7 +173,6 @@ public void OnPlayerResupply(Event event, const char[] name, bool dontBroadcast)
 		}
 	}
 
-	ViewChange_PlayerModel(client);
 	ViewChange_Update(client);
 	Weapons_ApplyAttribs(client);
 	SDKCall_GiveCorrectAmmoCount(client);
