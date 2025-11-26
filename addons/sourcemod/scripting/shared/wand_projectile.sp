@@ -159,7 +159,7 @@ float CustomPos[3] = {0.0,0.0,0.0}) //This will handle just the spawning, the re
 		SDKHook(entity, SDKHook_ThinkPost, ProjectileBaseThinkPost);
 		CBaseCombatCharacter(entity).SetNextThink(GetGameTime());
 		b_IsAProjectile[entity] = true;
-		SDKHook(entity, SDKHook_ShouldCollide, Never_ShouldCollide);
+		
 		SDKHook(entity, SDKHook_StartTouch, Wand_Base_StartTouch);
 
 		return entity;
@@ -388,9 +388,3 @@ stock int Target_Hit_Wand_Detection(int owner_projectile, int other_entity)
 	}
 	return 0;
 }
-
-
-public bool Never_ShouldCollide(int client, int collisiongroup, int contentsmask, bool originalResult)
-{
-	return false;
-} 
