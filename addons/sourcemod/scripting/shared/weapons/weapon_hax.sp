@@ -20,7 +20,6 @@ public void Weapon_HaxShoot(int client, int weapon, bool crit)
 	WandProjectile_ApplyFunctionToEntity(projectile, HaxShotTouch);
 	ApplyCustomModelToWandProjectile(projectile, "models/props_spytech/tv001.mdl", 0.85, "scythe_spin");
 	EmitSoundToAll(g_HaxWeapon[GetRandomInt(0, sizeof(g_HaxWeapon) - 1)], projectile, SNDCHAN_STATIC, 80, _, 1.0, 100);
-	EmitSoundToAll(g_HaxWeapon[GetRandomInt(0, sizeof(g_HaxWeapon) - 1)], projectile, SNDCHAN_STATIC, 80, _, 1.0, 100);
 }
 
 public void HaxShotTouch(int entity, int target)
@@ -42,7 +41,6 @@ public void HaxShotTouch(int entity, int target)
 		float Dmg_Force[3]; CalculateDamageForce(vecForward, 10000.0, Dmg_Force);
 		SDKHooks_TakeDamage(target, owner, owner, f_WandDamage[entity], DMG_PLASMA, weapon, Dmg_Force, Entity_Position);	// 2048 is DMG_NOGIB?
 		EmitSoundToAll(g_HaxWeapon[GetRandomInt(0, sizeof(g_HaxWeapon) - 1)], entity, SNDCHAN_STATIC, 80, SND_STOP, 1.0, 100);
-		EmitSoundToAll(g_HaxWeapon[GetRandomInt(0, sizeof(g_HaxWeapon) - 1)], entity, SNDCHAN_STATIC, 80, SND_STOP, 1.0, 100);
 		if(IsValidEntity(particle))
 		{
 			RemoveEntity(particle);
@@ -51,7 +49,6 @@ public void HaxShotTouch(int entity, int target)
 	}
 	else if(target == 0)
 	{
-		EmitSoundToAll(g_HaxWeapon[GetRandomInt(0, sizeof(g_HaxWeapon) - 1)], entity, SNDCHAN_STATIC, 80, SND_STOP, 1.0, 100);
 		EmitSoundToAll(g_HaxWeapon[GetRandomInt(0, sizeof(g_HaxWeapon) - 1)], entity, SNDCHAN_STATIC, 80, SND_STOP, 1.0, 100);
 		if(IsValidEntity(particle))
 		{

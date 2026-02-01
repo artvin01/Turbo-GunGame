@@ -4,7 +4,7 @@
 
 static Handle SDKEquipWearable;
 static Handle SDKGetMaxHealth;
-
+static Handle g_hSetAbsAngle;
 void SDKCall_Setup()
 {
 	GameData gamedata = LoadGameConfigFile("sm-tf2.games");
@@ -36,6 +36,14 @@ void SDKCall_Setup()
 	if(!g_hSetLocalOrigin)
 		LogError("[Gamedata] Could not find CBaseEntity::SetLocalOrigin");
 		
+		
+	StartPrepSDKCall(SDKCall_Entity);
+	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CBaseEntity::SetAbsAngles");
+	PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef);
+	g_hSetAbsAngle = EndPrepSDKCall();
+	if(!g_hSetAbsAngle)
+		LogError("[Gamedata] Could not find CBaseEntity::SetAbsAngles");
+
 	StartPrepSDKCall(SDKCall_Entity);
 	PrepSDKCall_SetFromConf(gamedata, SDKConf_Virtual, "CBaseEntity::WorldSpaceCenter");
 	PrepSDKCall_SetReturnInfo(SDKType_Vector, SDKPass_ByRef);
@@ -81,6 +89,13 @@ void SDKCall_Setup()
 	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CBaseEntity::SetAbsVelocity");
 	PrepSDKCall_AddParameter(SDKType_QAngle, SDKPass_ByRef);
 	if ((g_hSetAbsVelocity = EndPrepSDKCall()) == null) SetFailState("Failed to create SDKCall for CBaseEntity::SetAbsVelocity");
+
+	StartPrepSDKCall(SDKCall_Entity);
+	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CBaseEntity::SetAbsOrigin");
+	PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
+	g_hSetAbsOrigin = EndPrepSDKCall();
+	if(!g_hSetAbsOrigin)
+		LogError("[Gamedata] Could not find CBaseEntity::SetAbsOrigin");
 
 	StartPrepSDKCall(SDKCall_Entity);
 	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CBaseEntity::SetAbsOrigin");
@@ -234,4 +249,22 @@ stock int SDKCall_CTFCreateArrow(float VecOrigin[3], float VecAngles[3], const f
 stock void WorldSpaceCenter(int entity, float vecPos[3])
 {
 	SDKCall(g_hSDKWorldSpaceCenter, entity, vecPos);
+}
+
+
+void SDKCall_SetAbsOrigin(int index, float AbsOrigin[3])
+{
+	if(g_hSetAbsOrigin)
+	{
+		SDKCall(g_hSetAbsOrigin, index, AbsOrigin);
+	}
+}
+
+
+void SDKCall_SetAbsAngle(int index, float AbsAngle[3])
+{
+	if(g_hSetAbsAngle)
+	{
+		SDKCall(g_hSetAbsAngle, index, AbsAngle);
+	}
 }

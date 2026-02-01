@@ -56,23 +56,6 @@ static const char PlayerModelsCustom[][] =
 };
 
 
-static const char PlayerCustomHands[][] =
-{
-	"",
-	"models/zombie_riot/player_model_add/model_player_hands_1_5.mdl",
-	"models/sasamin/oneshot/zombie_riot_edit/niko_arms_01.mdl",
-	"models/bots/skeleton_sniper/skeleton_sniper.mdl",
-	"models/zombie_riot/player_model_add/model_player_hands_1_5.mdl",
-};
-
-int PlayerCustomModelBodyGroup[] =
-{
-	0,
-	1,
-	0,
-	0,
-	2,
-};
 
 enum
 {
@@ -87,7 +70,6 @@ static int HandIndex[10];
 static int PlayerIndex[10];
 static int RobotIndex[10];
 static int CustomIndex[sizeof(PlayerModelsCustom)];
-static int CustomHandIndex[sizeof(PlayerCustomHands)];
 
 static bool b_AntiSameFrameUpdate[MAXPLAYERS];
 
@@ -111,11 +93,6 @@ void ViewChange_MapStart()
 	for(int i; i<sizeof(CustomIndex); i++)
 	{
 		CustomIndex[i] = PrecacheModel(PlayerModelsCustom[i], true);
-	}
-
-	for(int i; i<sizeof(CustomHandIndex); i++)
-	{
-		CustomHandIndex[i] = PlayerCustomHands[i][0] ? PrecacheModel(PlayerCustomHands[i], true) : 0;
 	}
 	Zero(b_AntiSameFrameUpdate);
 
@@ -155,12 +132,12 @@ void ViewChange_ClientDisconnect(int client)
 
 stock void OverridePlayerModel(int client, int index = -1, bool DontShowCosmetics = false)
 {
-	b_HideCosmeticsPlayer[client] = DontShowCosmetics;
-	i_PlayerModelOverrideIndexWearable[client] = index;
-	ViewChange_Update(client, true);
-	int entity;
+	Viewchange_UpdateDelay(client);
+//	int entity;
 	if(DontShowCosmetics)
 	{
+		return;
+		/*
 		while(TF2_GetWearable(client, entity))
 		{
 			if(EntRefToEntIndex(i_Viewmodel_PlayerModel[client]) == entity)
@@ -168,9 +145,13 @@ stock void OverridePlayerModel(int client, int index = -1, bool DontShowCosmetic
 
 			SetEntProp(entity, Prop_Send, "m_fEffects", GetEntProp(entity, Prop_Send, "m_fEffects") | EF_NODRAW);
 		}
+		*/
 	}
 	else
 	{
+		return;
+		/*
+
 		while(TF2_GetWearable(client, entity))
 		{
 			if(EntRefToEntIndex(i_Viewmodel_PlayerModel[client]) == entity)
@@ -178,29 +159,50 @@ stock void OverridePlayerModel(int client, int index = -1, bool DontShowCosmetic
 
 			SetEntProp(entity, Prop_Send, "m_fEffects", GetEntProp(entity, Prop_Send, "m_fEffects") &~ EF_NODRAW);
 		}
+		*/
 	}
 }
 
 
 void ViewChange_PlayerModel(int client)
 {
-
 	int ViewmodelPlayerModel = EntRefToEntIndex(i_Viewmodel_PlayerModel[client]);
 	if(IsValidEntity(ViewmodelPlayerModel))
 	{
 		TF2_RemoveWearable(client, ViewmodelPlayerModel);
 	}
 
-
-
 	int team = GetClientTeam(client);
 	int entity = CreateEntityByName("tf_wearable");
 	if(entity != -1)	// playermodel
 	{
+		int index = PlayerIndex[CurrentClass[client]];
+		int body = -1;
+		bool anim, noCosmetic;
+	
+		if(Native_OnClientWorldmodel(client, CurrentClass[client], index, body, anim, noCosmetic))
+		{
+			OverridePlayerModel(client, -1, noCosmetic);
+		}
+
+		
+		if(anim)
+		{
+			static char model[PLATFORM_MAX_PATH];
+			ModelIndexToString(index, model, sizeof(model));
+			SetVariantString(model);
+		}
+		else
+		{
+			SetVariantString(NULL_STRING);
+		}
+
+		AcceptEntityInput(client, "SetCustomModelWithClassAnimations");
+
 		int SetSkin = team - 2;
 		UpdatePlayerFakeModel(client);
 		MedicAdjustModel(client);
-		SetEntProp(entity, Prop_Send, "m_nModelIndex", PlayerIndex[CurrentClass[client]]);
+		SetEntProp(entity, Prop_Send, "m_nModelIndex", index);
 		
 		SetEntProp(entity, Prop_Send, "m_fEffects", 129);
 		SetTeam(entity, team);
@@ -329,10 +331,9 @@ void ViewChange_Switch(int client, int active, const char[] classname)
 					class = view_as<TFClassType>(i_WeaponForceClass[active]);
 				}
 			}
-			if(!Cvar_GGR_AllowFreeClassPicking.IntValue)
+			if(!Cvar_TGG_AllowFreeClassPicking.IntValue)
 				CurrentClass[client] = class;
 
-			
 			SetEntProp(entity, Prop_Send, "m_nModelIndex", HandIndex[class]);
 			
 			int team = GetClientTeam(client);
@@ -458,11 +459,6 @@ void MedicAdjustModel(int client)
 	int ViewmodelPlayerModel = EntRefToEntIndex(i_Viewmodel_PlayerModel[client]);
 	if(!IsValidEntity(ViewmodelPlayerModel))
 		return;
-		
-	if(i_PlayerModelOverrideIndexWearable[client] >= 0)
-	{
-		return;
-	}
 
 	if(CurrentClass[client] != view_as<TFClassType>(5))
 		return;
@@ -511,14 +507,8 @@ int ViewChange_UpdateHands(int client, TFClassType class)
 	else
 	{
 		int model = HandIndex[view_as<int>(class)];
-		if(i_PlayerModelOverrideIndexWearable[client] >= 0 && i_PlayerModelOverrideIndexWearable[client] < sizeof(CustomHandIndex) && CustomHandIndex[i_PlayerModelOverrideIndexWearable[client]])
-		{
-			model = CustomHandIndex[i_PlayerModelOverrideIndexWearable[client]];
-		}
 		
 		entity = CreateViewmodel(client, model, model, weapon);
-		if(i_PlayerModelOverrideIndexWearable[client] >= 0)
-			SetEntProp(entity, Prop_Send, "m_nBody", PlayerCustomModelBodyGroup[i_PlayerModelOverrideIndexWearable[client]]);
 			
 		if(entity != -1)
 			HandRef[client] = EntIndexToEntRef(entity);
@@ -548,7 +538,7 @@ static int CreateViewmodel(int client, int modelAnims, int modelOverride, int we
 	GetEntPropVector(client, Prop_Send, "m_vecOrigin", vecOrigin);
 	GetEntPropVector(client, Prop_Send, "m_angRotation", vecAngles);
 	TeleportEntity(wearable, vecOrigin, vecAngles, NULL_VECTOR);
-
+	
 	if(copy)
 		ImportSkinAttribs(wearable, weapon);
 	
@@ -560,13 +550,8 @@ static int CreateViewmodel(int client, int modelAnims, int modelOverride, int we
 	DispatchSpawn(wearable);
 	
 	SetEntProp(wearable, Prop_Send, "m_nModelIndex", modelAnims);	// After DispatchSpawn, otherwise CEconItemView overrides it
-	/*
-	char buffer[256];
-	ModelIndexToString(modelAnims, buffer, sizeof(buffer));
-	PrintToChatAll("Anims: '%s'", buffer);
-	ModelIndexToString(modelOverride, buffer, sizeof(buffer));
-	PrintToChatAll("Override: '%s'", buffer);
-*/
+
+
 	SetEntProp(wearable, Prop_Data, "m_nModelIndexOverrides", modelOverride);
 
 	SetVariantString("!activator");
@@ -604,7 +589,7 @@ void HidePlayerWeaponModel(int client, int entity, bool OnlyHide = false)
 //	SetEntProp(entity, Prop_Send, "m_fEffects", GetEntProp(entity, Prop_Send, "m_fEffects") | EF_NODRAW);
 	SetEntPropFloat(entity, Prop_Send, "m_fadeMinDist", 0.0);
 	SetEntPropFloat(entity, Prop_Send, "m_fadeMaxDist", 0.00001);
-	
+	EntityPlayerCMD[client] = EntityPlayerCMD[entity];
 	if(StoreWeapon[entity] >= 0)
 	{
 		ItemInfo info;

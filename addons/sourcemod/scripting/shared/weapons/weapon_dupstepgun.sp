@@ -6,7 +6,7 @@ static Handle Local_Timer[MAXPLAYERS] = {null, ...};
 public void DupStepGunMapStart()
 {
 	Zero(DoingDupstep);
-	PrecacheSound("music/hl1_song10.mp3");
+	PrecacheSound("music/hl1_song10.mp3", true);
 }
 
 public void DupStepGun_Create(int client, int weapon)
@@ -16,8 +16,8 @@ public void DupStepGun_Create(int client, int weapon)
 		delete Local_Timer[client];
 		Local_Timer[client] = null;
 	}
-	EmitSoundToAll("music/hl1_song10.mp3", client, SNDCHAN_STATIC, 80, SND_STOP, 1.0);
-	EmitSoundToAll("music/hl1_song10.mp3", client, SNDCHAN_STATIC, 80, SND_STOP, 1.0);
+	if(DoingDupstep[client])
+		EmitSoundToAll("music/hl1_song10.mp3", client, SNDCHAN_STATIC, 80, SND_STOP, 1.0);
 	DoingDupstep[client] = false;
 	DataPack pack;
 	Local_Timer[client] = CreateDataTimer(0.1, Timer_Local, pack, TIMER_REPEAT);
@@ -36,7 +36,6 @@ static Action Timer_Local(Handle timer, DataPack pack)
 	{
 		if(IsValidClient(client))
 		{
-			EmitSoundToAll("music/hl1_song10.mp3", client, SNDCHAN_STATIC, 80, SND_STOP, 1.0);
 			EmitSoundToAll("music/hl1_song10.mp3", client, SNDCHAN_STATIC, 80, SND_STOP, 1.0);
 		}
 		Local_Timer[clientidx] = null;
@@ -60,14 +59,13 @@ static Action Timer_Local(Handle timer, DataPack pack)
 		GetClientEyeAngles(client, fAng);
 		fAng[0] += GetRandomFloat(-3.0,3.0);
 		fAng[1] += GetRandomFloat(-3.0,3.0);
-		Client_Shake(client, 0, 5.0, 3.0, 0.15);
+	//	Client_Shake(client, 0, 5.0, 3.0, 0.15);
 
 		int projectile = Wand_Projectile_Spawn(client, 2000.0, 10.0, 25.0, 0, weapon, particle, fAng);
 		WandProjectile_ApplyFunctionToEntity(projectile, Want_DefaultWandTouch);
 		if(!DoingDupstep[client])
 		{
-			EmitSoundToAll("music/hl1_song10.mp3", client, SNDCHAN_STATIC, 80, _, 0.65, .soundtime = GetGameTime() - 26.0);
-			EmitSoundToAll("music/hl1_song10.mp3", client, SNDCHAN_STATIC, 80, _, 0.65, .soundtime = GetGameTime() - 26.0);
+			EmitSoundToAll("music/hl1_song10.mp3", client, SNDCHAN_STATIC, 80, _, 1.0, .soundtime = GetGameTime() - 26.0);
 			DoingDupstep[client] = true;
 		}
 	}
@@ -75,7 +73,6 @@ static Action Timer_Local(Handle timer, DataPack pack)
 	{
 		if(DoingDupstep[client])
 		{
-			EmitSoundToAll("music/hl1_song10.mp3", client, SNDCHAN_STATIC, 80, SND_STOP, 1.0);
 			EmitSoundToAll("music/hl1_song10.mp3", client, SNDCHAN_STATIC, 80, SND_STOP, 1.0);
 			DoingDupstep[client] = false;
 		}

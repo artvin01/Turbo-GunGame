@@ -143,6 +143,7 @@ void HookShotPrethink(int client)
 	//prob laggy
 	if(!IsValidClient(client) || !IsClientInGame(client) || !IsPlayerAlive(client))
 	{
+		Hook_Disconnect(client, false);
 		SDKUnhook(client, SDKHook_PreThink, HookShotPrethink);
 		return;
 	}
@@ -168,6 +169,7 @@ static Action Timer_Local(Handle timer, DataPack pack)
 		Local_Timer[clientidx] = null;
 		if(IsValidClient(client))
 		{
+			Hook_Disconnect(client, false);
 			PrintCenterText(client, "");
 			SDKUnhook(client, SDKHook_PreThink, HookShotPrethink);
 		}

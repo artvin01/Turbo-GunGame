@@ -15,7 +15,7 @@ public void Weapon_FartGun(int client, int weapon, bool crit)
 	float damage = 65.0;
 	damage *= Attributes_Get(weapon, 2, 1.0);
 	
-	int projectile = Wand_Projectile_Spawn(client, 1200.0, 0.11, damage, 0, weapon, "pumpkin_cloud");
+	int projectile = Wand_Projectile_Spawn(client, 1200.0, 0.22, damage, 0, weapon, "pumpkin_cloud");
 	WandProjectile_ApplyFunctionToEntity(projectile, FartShotTouch);
 	EmitSoundToAll(g_Boowomp[GetRandomInt(0, sizeof(g_Boowomp) - 1)], client, SNDCHAN_STATIC, 80, _, 1.0, 70, .soundtime = GetGameTime() - (4.75 * (1.0 / 0.7)));
 }

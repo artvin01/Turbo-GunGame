@@ -14,7 +14,7 @@
 #include <morecolors>
 #include <tf2utils>
 #include <cbasenpc>
-//#include <collisionhook>
+#include <collisionhook>
 //#include <sourcescramble>
 //#include <handledebugger>
 #undef REQUIRE_EXTENSIONS
@@ -47,15 +47,21 @@
 #define HIDEHUD_METAL		( 1<<15 )	
 #define HIDEHUD_TARGET_ID		( 1<<16 )	
 
-#define SOUND_LEVELUP "gungame_riot/levelup.mp3"
+#define SOUND_LEVELUP "turbo_gungame/levelup.mp3"
 #define SOUND_FINALLEVEL "ui/duel_challenge_accepted_with_restriction.wav"
 
+enum struct SpawnPointInfo
+{
+	int ref;
+	TFTeam originalTeam;
+}
 
 #include "global_arrays.sp"
 #include "stocks_override.sp"
 #include "stocks.sp"
 #include "weapons.sp"
 #include "configs.sp"
+#include "console.sp"
 #include "viewchanges.sp"
 #include "attributes.sp"
 #include "sdkcalls.sp"
@@ -64,6 +70,7 @@
 #include "sdkhooks.sp"
 #include "convars.sp"
 #include "wand_projectile.sp"
+#include "natives.sp"
 
 
 #include "weapons/weapon_boom_stick.sp"
@@ -90,6 +97,10 @@
 #include "weapons/weapon_fartgun.sp"
 #include "weapons/weapon_poisoned_sandvich.sp"
 #include "weapons/weapon_hookshot.sp"
+#include "weapons/weapon_redeemer.sp"
+#include "weapons/weapon_loud_horn.sp"
+#include "weapons/weapon_supersonicpunch.sp"
+#include "weapons/weapon_laming_rampager.sp"
 
 public Plugin myinfo =
 {
@@ -100,16 +111,23 @@ public Plugin myinfo =
 };
 
 
+public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max)
+{
+	Natives_PluginLoad();
+
+	return APLRes_Success;
+}
 public void OnPluginStart()
 {
-	
 	Core_DoTickrateChanges();
 	DHook_Setup();
 	SDKCall_Setup();
 	Events_PluginStart();
 	SDKHook_PluginStart();
-	ConVar_PluginStart();
 	WandProjectile_GamedataInit();
+	Console_PluginStart();
+	
+	SpawnPointArray = new ArrayList(sizeof(SpawnPointInfo));
 	
 	RegAdminCmd("sm_give_gun", Command_ForceGiveGunName, ADMFLAG_ROOT, "Give a gun to a person");
 	
@@ -128,6 +146,8 @@ public void OnMapStart()
 	SDKHook_MapStart();
 	ViewChange_MapStart();
 	Zero(f_PreventMovementClient);
+	Zero(f_PreventKillCredit);
+	Zero(f_RetryRespawn);
 	f_RoundStartUberLastsUntil = 0.0;
 	//precache or fastdl
 	g_particleCritText = PrecacheParticleSystem("crit_text");
@@ -145,7 +165,7 @@ public void OnMapStart()
 	AddFileToDownloadsTable("sound/zombiesurvival/headshot1.wav");
 	AddFileToDownloadsTable("sound/zombiesurvival/headshot2.wav");
 	AddFileToDownloadsTable("sound/quake/standard/headshot.mp3");
-	AddFileToDownloadsTable("sound/gungame_riot/levelup.mp3");
+	AddFileToDownloadsTable("sound/turbo_gungame/levelup.mp3");
 	
 	AddFileToDownloadsTable("models/zombie_riot/weapons/custom_weaponry_1_52.dx80.vtx");
 	AddFileToDownloadsTable("models/zombie_riot/weapons/custom_weaponry_1_52.dx90.vtx");
@@ -194,9 +214,18 @@ public void OnMapStart()
 	FartGun_Precache();
 	PosionSandvichMapStart();
 	HookshotMapStart();
+	Spell_MapStart();
+	Redeemer_Precache();
+	LoudHornMapStart();
+	SuperSonic_Precache();
+	LamingRampager_Precache();
+	
+	SpawnPointArray.Clear();
 }
+
 public void OnConfigsExecuted()
 {
+	ConVar_ConfigsExecuted();
 	ConVar_Enable();
 	Configs_ConfigsExecuted();
 	Weapons_ConfigsExecuted();
@@ -211,14 +240,16 @@ public void OnConfigsExecuted()
 public void OnPluginEnd()
 {
 	ConVar_Disable();
-	
+	SetMapSpawnPointsToTeam(TFTeam_Unassigned, false);
 }
+
 public void OnClientPutInServer(int client)
 {
 	Core_DoTickrateChanges();
 	
 	SDKHook_HookClient(client);
 	ValidTargetToHit[client] = true;
+	ClientFirstTimeChoosingTeam[client] = true;
 }
 public void OnGameFrame()
 {
@@ -226,19 +257,25 @@ public void OnGameFrame()
 }
 public void OnEntityCreated(int entity, const char[] classname)
 {
+	if(!StrContains(classname, "info_player_teamspawn"))
+	{
+		// This is a non-networked entity, we're directly looking at its ref
+		RequestFrame(Frame_SpawnPointCreated, entity);
+		return;
+	}
+	
 	if (entity < 0)
 		return;
 	if (entity > 2048)
 		return;
 	if (!IsValidEntity(entity))
 		return;
-
+	b_IsAProjectile[entity] = false;
 	ValidTargetToHit[entity] = false;
 	i_SavedActualWeaponSlot[entity] = -1;
 	b_IsATrigger[entity] = false;
 	b_IsATriggerHurt[entity] = false;
 	b_IsAMedigun[entity] = false;
-	b_ThisEntityIsAProjectileForUpdateContraints[entity] = false;
 	if(!StrContains(classname, "trigger_teleport")) //npcs think they cant go past this sometimes, lol
 	{
 		b_IsATrigger[entity] = true;
@@ -253,9 +290,17 @@ public void OnEntityCreated(int entity, const char[] classname)
 	}
 	else if(!StrContains(classname, "tf_projecti"))
 	{
-		//This can only be on red anyways.
-		b_ThisEntityIsAProjectileForUpdateContraints[entity] = true;
+		b_IsAProjectile[entity] = true;
 	}
+	/*
+	else if(!StrContains(classname, "func_wall")
+	|| !StrContains(classname, "func_ladder"))
+	{
+		//crashes with custom projectiles
+		SDKHook(entity, SDKHook_SpawnPost, Delete_instantly);
+	//	b_IsAProjectile[entity] = true;
+	}
+	*/
 	else if(!StrContains(classname, "trigger_hurt")) //npcs think they cant go past this sometimes, lol
 	{
 		b_IsATrigger[entity] = true;
@@ -272,6 +317,73 @@ public void OnEntityCreated(int entity, const char[] classname)
 	else if(!StrContains(classname, "obj_"))
 	{
 		ValidTargetToHit[entity] = true;
+	}
+}
+
+void Frame_SpawnPointCreated(int entity)
+{
+	// Spawn points are created when a game (not round) starts in some maps, so we clean up the list if more spawns were added at a later point (because why would a map do this mid round)
+	// Needs to be a frame late because m_iTeamNum isn't initialized even in SDKHook_OnSpawnPost
+	// This is only used to store info about spawn points
+	
+	float time = GetGameTime();
+	static float lastTime;
+	
+	if (time != lastTime)
+		SpawnPointArray.Clear();
+	
+	TFTeam team = view_as<TFTeam>(GetEntProp(entity, Prop_Send, "m_iTeamNum"));
+	
+	SpawnPointInfo info;
+	info.ref = entity;
+	info.originalTeam = team;
+	SpawnPointArray.PushArray(info);
+	lastTime = time;
+}
+
+void Frame_SetMapSpawnPointsPostTeamSwitch(TFTeam team)
+{
+	SetMapSpawnPointsToTeam(team, true);
+}
+
+void SetMapSpawnPointsToTeam(TFTeam team, bool respawn)
+{
+	n_ForcedTeam = team;
+	
+	int length = SpawnPointArray.Length;
+	for (int i = length - 1; i >= 0; i--)
+	{
+		SpawnPointInfo info;
+		SpawnPointArray.GetArray(i, info);
+		
+		int entity = info.ref;
+		if (!IsValidEntity(entity))
+		{
+			SpawnPointArray.Erase(i);
+			continue;
+		}
+		
+		// Setting the team to unassigned/spectator restores the spawn point's original team
+		SetVariantInt(team <= TFTeam_Spectator ? view_as<int>(info.originalTeam) : view_as<int>(team));
+		AcceptEntityInput(entity, "SetTeam");
+	}
+	
+	if (respawn)
+	{
+		for (int client = 1; client <= MaxClients; client++)
+		{
+			if (!IsClientInGame(client) || !IsPlayerAlive(client) || TF2_GetClientTeam(client) <= TFTeam_Spectator)
+				continue;
+			
+			TFTeam playerTeam = TF2_GetClientTeam(client);
+			if (playerTeam <= TFTeam_Spectator)
+				continue;
+			
+			if (playerTeam != team)
+				TF2_ForceTeamJoin(client, team, false);
+			
+			RequestFrame(Frame_RespawnPlayer, GetClientUserId(client));
+		}
 	}
 }
 
@@ -429,6 +541,27 @@ public void TF2_OnConditionRemoved(int client, TFCond condition)
 }
 
 
+public Action OnPlayerRunCmd(int client, int &buttons, int &impulse, float vel[3], float angles[3], int &weapon, int &subtype, int &cmdnum, int &tickcount, int &seed, int mouse[2])
+{
+	Function func = EntityPlayerCMD[client];
+	if(func && func!=INVALID_FUNCTION)
+	{
+		Call_StartFunction(null, func);
+		Call_PushCell(client);
+		Call_PushCellRef(buttons);
+		Call_PushCellRef(impulse);
+		Call_PushArray(vel, sizeof(vel));
+		Call_PushArray(angles, sizeof(angles));
+		Call_PushCellRef(weapon);
+		Call_PushCellRef(subtype);
+		Call_PushCellRef(cmdnum);
+		Call_PushCellRef(tickcount);
+		Call_PushCellRef(seed);
+		Call_PushArray(mouse, sizeof(mouse));
+		Call_Finish();
+	}
+	return Plugin_Changed;
+}
 public Action TF2_CalcIsAttackCritical(int client, int weapon, char[] classname, bool &result)
 {
 	Action action = Plugin_Continue;

@@ -24,8 +24,9 @@ public Action BonkBat_OnTakeDamage(int victim, int &attacker, int &inflictor, fl
 	{
 		EmitSoundToAll(BonkBat_Sound, victim, SNDCHAN_ITEM, 70, _, 1.0);
 		damage = 1.0;
-		Attributes_Set(victim, Attrib_MultiplyFallDamage, 3.0); 
+		Attributes_Set(victim, Attrib_MultiplyFallDamage, 1.5); 
 		CreateTimer(0.35, Timer_SlamVictimDown, EntIndexToEntRef(victim), TIMER_FLAG_NO_MAPCHANGE);
+		i_FallDamageKillCredit[victim] = EntIndexToEntRef(attacker);
 		return Plugin_Changed;
 	}
 	

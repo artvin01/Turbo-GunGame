@@ -15,24 +15,28 @@ static ArrayList CvarList;
 static ArrayList CvarMapList;
 static bool CvarEnabled;
 
-void ConVar_PluginStart()
+void ConVar_ConfigsExecuted()
 {
 	CvarList = new ArrayList(sizeof(CvarInfo));
 
 	sv_cheats = ConVar_Add("sv_cheats", "0", false, (FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_CHEAT));
-	mp_friendlyfire = ConVar_Add("mp_friendlyfire", "1", false, (FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_CHEAT));
+	mp_friendlyfire = ConVar_Add("mp_friendlyfire", "1", true, (FCVAR_NOTIFY | FCVAR_CHEAT));
 	tf_scout_air_dash_count = ConVar_Add("tf_scout_air_dash_count", "0", false); 
+	mp_humans_must_join_team = ConVar_Add("mp_humans_must_join_team", "red"); 	//only reds allowed
 
-	Cvar_GGR_WeaponsTillWin = CreateConVar("ggr_weapons_till_win", "25", "How many kills untill a player wins");
-	Cvar_GGR_AllowFreeClassPicking = CreateConVar("ggr_allowfreeclasspicking", "0", "are players allowed to have classes for vanity");
+	Cvar_TGG_WeaponsTillWin = CreateConVar("tgg_weapons_till_win", "25", "How many kills untill a player wins");
+	Cvar_TGG_AllowFreeClassPicking = CreateConVar("tgg_allowfreeclasspicking", "0", "are players allowed to have classes for vanity");
 	ConVar_Add("tf_weapon_criticals_distance_falloff", "1.0"); //Remove crits
 	ConVar_Add("tf_weapon_minicrits_distance_falloff", "1.0"); //Remove crits
-	ConVar_Add("tf_weapon_criticals", "0.0");		//Remove crits
+	ConVar_Add("tf_weapon_criticals", "0.0");			//Remove crits
 	ConVar_Add("tf_weapon_criticals_melee", "0.0");		//Remove crits
 	ConVar_Add("tf_avoidteammates_pushaway", "0"); 
-	ConVar_Add("tf_dropped_weapon_lifetime", "0.0"); //Remove dropped weapons
-	ConVar_Add("tf_spawn_glows_duration", "0.0"); //No glow duration
-	ConVar_Add("tf_avoidteammates", "0.0"); //No glow duration
+	ConVar_Add("tf_dropped_weapon_lifetime", "0.0"); 	//Remove dropped weapons
+	ConVar_Add("tf_spawn_glows_duration", "0.0"); 		//No glow duration
+	ConVar_Add("tf_avoidteammates", "0.0"); 			//always touch
+	ConVar_Add("mp_autoteambalance", "0"); 				//balance
+	ConVar_Add("mp_teams_unbalance_limit", "0"); 		//balance
+	ConVar_ToggleDo();
 
 }
 
@@ -122,6 +126,8 @@ stock void ConVar_RemoveTemp(const char[] name)
 //its better to-inforce the flags.
 void ConVar_ToggleDo()
 {
+	if(!CvarList)
+		return;
 	CvarInfo info;
 	int length = CvarList.Length;
 	for(int i; i<length; i++)

@@ -9,9 +9,9 @@ static const char SCP18ClientHitSound[] = "weapons/grappling_hook_impact_flesh.w
 static const char SCP18BreakSound[] = "weapons/ball_buster_break_02.wav";
 
 //static const float SCP18VelocityFactor = 1.08;
-static const float SCP18VelocityBoost = 40.0;
+static const float SCP18VelocityBoost = 80.0;
 static const float SCP18GravityFactor = 0.5;
-static const float SCP18GravityAccelTime = 3.0;
+static const float SCP18GravityAccelTime = 4.0;
 static const float SCP18MaxVelocity = 10000.0;
 static const float SCP18MaxDamage = 1200.0;
 static const float SCP18Lifetime = 7.0;
@@ -178,7 +178,7 @@ public void SCP18_Tick()
 		
 		// if we are at max velocity, check if we have exceeded our lifetime
 		// (gungame riot) also break here if we dealt too much damage
-		if (scp18.ForceBreak || (scp18.Magnitude == SCP18MaxVelocity && ((scp18.SpawnTime + SCP18Lifetime) < time)))
+		if (scp18.ForceBreak || (((scp18.SpawnTime + SCP18Lifetime) < time)))
 		{
 			EmitSoundToAll(SCP18BreakSound, scp18.EntIndex, SNDCHAN_AUTO, SNDLEVEL_NORMAL, _, SNDVOL_NORMAL);
 			CreateTimer(0.1, Timer_RemoveEntity, scp18.EntRef, TIMER_FLAG_NO_MAPCHANGE);
@@ -302,7 +302,7 @@ public void SCP18_Button(int client, int weapon, bool crit)
 		GetClientEyeAngles(client, ang);
 		pos[2] += 63.0;
 
-		Items_GrenadeTrajectory(ang, vel, 550.0);
+		Items_GrenadeTrajectory(ang, vel, 950.0);
 
 		SetEntPropEnt(entity, Prop_Send, "m_hOwnerEntity", client);
 		SetEntProp(entity, Prop_Send, "m_iTeamNum", GetClientTeam(client));

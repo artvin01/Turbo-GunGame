@@ -26,13 +26,12 @@ void DHook_Setup()
 	DHook_CreateDetour(gamedata, "CTFPlayer::SpeakConceptIfAllowed()", SpeakConceptIfAllowed_Pre, SpeakConceptIfAllowed_Post);
 	DHook_CreateDetour(gamedata, "CTFGameRules::CalcPlayerScore", Detour_CalcPlayerScore);
 
-	g_DHookRocketExplode = DHook_CreateVirtual(gamedata, "CTFBaseRocket::Explode");
 	HookItemIterateAttribute = DynamicHook.FromConf(gamedata, "CEconItemView::IterateAttributes");
 	m_Item = FindSendPropInfo("CEconEntity", "m_Item");
 	FindSendPropInfo("CEconEntity", "m_bOnlyIterateItemViewAttributes", _, _, m_bOnlyIterateItemViewAttributes);
 }
 
-static DynamicHook DHook_CreateVirtual(GameData gamedata, const char[] name)
+stock DynamicHook DHook_CreateVirtual(GameData gamedata, const char[] name)
 {
 	DynamicHook hook = DynamicHook.FromConf(gamedata, name);
 	if (!hook)
@@ -45,7 +44,7 @@ public MRESReturn DHook_ManageRegularWeaponsPre(int client, DHookParam param)
 	// Gives our desired class's wearables
 //	IsInsideManageRegularWeapons = true;
 	//select their class here again.
-	if(Cvar_GGR_AllowFreeClassPicking.IntValue)
+	if(Cvar_TGG_AllowFreeClassPicking.IntValue)
 		CurrentClass[client] = view_as<TFClassType>(GetEntProp(client, Prop_Send, "m_iDesiredPlayerClass"));
 
 
@@ -146,7 +145,32 @@ stock Handle CheckedDHookCreateFromConf(Handle game_config, const char[] name) {
     return res;
 }
 
+public Action CH_ShouldCollide(int ent1, int ent2, bool &result)
+{
+	if(!(ent1 >= 0 && ent1 <= MAXENTITIES && ent2 >= 0 && ent2 <= MAXENTITIES))
+		return Plugin_Continue;
 
+	result = PassfilterGlobal(ent1, ent2, true);
+	if(!result)
+	{
+		return Plugin_Handled;
+	}
+	return Plugin_Continue;
+
+}
+public Action CH_PassFilter(int ent1, int ent2, bool &result)
+{
+	if(!(ent1 >= 0 && ent1 <= MAXENTITIES && ent2 >= 0 && ent2 <= MAXENTITIES))
+		return Plugin_Continue;
+
+	result = PassfilterGlobal(ent1, ent2, true);
+	if(!result)
+	{
+		return Plugin_Handled;
+	}
+	return Plugin_Continue;
+
+}
 stock void DHook_HookStripWeapon(int entity)
 {
 	if(m_Item > 0 && m_bOnlyIterateItemViewAttributes > 0)
@@ -212,4 +236,42 @@ public MRESReturn SpeakConceptIfAllowed_Post(int client, Handle hReturn, Handle 
 		}
 	}
 	return MRES_Ignored;
+}
+
+
+
+public bool PassfilterGlobal(int ent1, int ent2, bool result)
+{
+	for( int ent = 1; ent <= 2; ent++ ) 
+	{
+		static int entity1;
+		static int entity2; 	
+		if(ent == 1)
+		{
+			entity1 = ent1;
+			entity2 = ent2;
+		}
+		else
+		{
+			entity1 = ent2;
+			entity2 = ent1;			
+		}
+		if(b_IsAProjectile[entity1])
+		{
+			if(b_IsAProjectile[entity2])
+			{
+				return false;
+			}
+			if(!ValidTargetToHit[entity2])
+			{
+				if(entity2 > MaxClients)
+					return false;
+			}
+			if(entity2 == GetEntPropEnt(entity1, Prop_Send, "m_hOwnerEntity"))
+			{
+				return false;
+			}
+		}
+	}
+	return result;	
 }

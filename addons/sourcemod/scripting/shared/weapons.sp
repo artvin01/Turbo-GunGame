@@ -36,6 +36,8 @@ enum struct ItemInfo
 	Function FuncWeaponRemoved;
 	Function FuncJarate;
 	Function FuncTakeDamage;
+	Function FuncTakeDamageSelf;
+	Function FuncPlayerCMD;
 
 	void Self(ItemInfo info)
 	{
@@ -128,6 +130,14 @@ enum struct ItemInfo
 		Format(buffer, sizeof(buffer), "%sfunc_takedamage", prefix);
 		kv.GetString(buffer, buffer, sizeof(buffer));
 		this.FuncTakeDamage = GetFunctionByName(null, buffer);
+
+		Format(buffer, sizeof(buffer), "%sfunc_takedamageself", prefix);
+		kv.GetString(buffer, buffer, sizeof(buffer));
+		this.FuncTakeDamageSelf = GetFunctionByName(null, buffer);
+
+		Format(buffer, sizeof(buffer), "%sfunc_playercmd", prefix);
+		kv.GetString(buffer, buffer, sizeof(buffer));
+		this.FuncPlayerCMD = GetFunctionByName(null, buffer);
 		
 		static char buffers[64][16];
 		Format(buffer, sizeof(buffer), "%sattributes", prefix);
@@ -340,6 +350,8 @@ int Weapons_GiveItem(int client, int index, bool &use=false, bool &found=false)
 				EntityFuncRemove[entity] = info.FuncWeaponRemoved;
 				EntityFuncJarate[entity] = info.FuncJarate;
 				EntityFuncTakeDamage[entity] = info.FuncTakeDamage;
+				EntityFuncTakeDamage_Self[entity] = info.FuncTakeDamageSelf;
+				EntityPlayerCMD[entity] = info.FuncPlayerCMD;
 				i_WeaponVMTExtraSetting[entity] 			= info.WeaponVMTExtraSetting;
 
 				if (info.Reload_ModeForce == 1)
@@ -540,7 +552,6 @@ void Weapons_ApplyAttribs(int client)
 	int attribs = 0;
 	for(int i; i < length; i++)
 	{
-
 		snapshot.GetKey(i, buffer1, sizeof(buffer1));
 		if(map.GetValue(buffer1, value))
 		{
@@ -548,7 +559,6 @@ void Weapons_ApplyAttribs(int client)
 
 			if(Attributes_Set(client, index, value))
 				attribs++;
-
 		}
 	}
 	
@@ -592,10 +602,10 @@ void Weapons_ResetRound()
 
 	SortIntegers(WeaponsPicking, length, Sort_Random);
 	
-	int MaxWeapons = Cvar_GGR_WeaponsTillWin.IntValue;
+	int MaxWeapons = Cvar_TGG_WeaponsTillWin.IntValue;
 	if(MaxWeapons > length)
 	{
-		Cvar_GGR_WeaponsTillWin.IntValue = length;
+		Cvar_TGG_WeaponsTillWin.IntValue = length;
 		MaxWeapons = length;
 	}
 	
@@ -639,13 +649,13 @@ void GiveClientWeapon(int client, int Upgrade = 0)
 	ClientAtWhatScore[client] = GiveWeapon;
 	
 	// Don't give a weapon if we're beyond the max rank
-	if(GiveWeapon >= Cvar_GGR_WeaponsTillWin.IntValue)
+	if(GiveWeapon >= Cvar_TGG_WeaponsTillWin.IntValue)
 		return;
 	
 	if (Upgrade >= 1)
 		EmitSoundToClient(client, SOUND_LEVELUP, _, SNDCHAN_STATIC, SNDLEVEL_NONE);
 	
-	if(GiveWeapon + 4 >= Cvar_GGR_WeaponsTillWin.IntValue)
+	if(GiveWeapon + 4 >= Cvar_TGG_WeaponsTillWin.IntValue)
 	{
 		SetEntProp(client, Prop_Send, "m_bGlowEnabled", true);
 	}
@@ -653,14 +663,14 @@ void GiveClientWeapon(int client, int Upgrade = 0)
 	{
 		SetEntProp(client, Prop_Send, "m_bGlowEnabled", false);
 	}
-	if(GiveWeapon + 1 >= Cvar_GGR_WeaponsTillWin.IntValue)
+	if(GiveWeapon + 1 >= Cvar_TGG_WeaponsTillWin.IntValue)
 	{
 		SetEntProp(client, Prop_Send, "m_bGlowEnabled", true);
 		TF2_AddCondition(client, TFCond_MarkedForDeath, 9999.9);
 		if(Upgrade >= 1)
 		{
 			EmitSoundToAll(SOUND_FINALLEVEL, _, SNDCHAN_STATIC, SNDLEVEL_NONE);
-			CPrintToChatAll("%s %N is about to win!",GGR_PREFIX, client);
+			CPrintToChatAll("%s %N is about to win!",TGG_PREFIX, client);
 		}
 	}
 
