@@ -4,7 +4,6 @@
 #include <tf2_stocks>
 #include <sdkhooks>
 #include <clientprefs>
-#include <dhooks>
 #undef AUTOLOAD_EXTENSIONS
 #tryinclude <tf2items>
 #define AUTOLOAD_EXTENSIONS
@@ -12,9 +11,7 @@
 
 #include <tf2attributes>
 #include <morecolors>
-#include <tf2utils>
-#include <cbasenpc>
-#include <collisionhook>
+//#include <tf2utils>
 //#include <sourcescramble>
 //#include <handledebugger>
 #undef REQUIRE_EXTENSIONS
@@ -47,6 +44,9 @@
 #define HIDEHUD_METAL		( 1<<15 )	
 #define HIDEHUD_TARGET_ID		( 1<<16 )	
 
+#define TIME_TO_TICKS(%1)	RoundToZero(0.5 + %1 / GetTickInterval())
+#define TICKS_TO_TIME(%1)	(GetTickInterval() * float(%1))
+
 #define SOUND_LEVELUP "turbo_gungame/levelup.mp3"
 #define SOUND_FINALLEVEL "ui/duel_challenge_accepted_with_restriction.wav"
 
@@ -65,7 +65,6 @@ enum struct SpawnPointInfo
 #include "viewchanges.sp"
 #include "attributes.sp"
 #include "sdkcalls.sp"
-#include "dhooks.sp"
 #include "events.sp"
 #include "sdkhooks.sp"
 #include "convars.sp"
@@ -120,11 +119,9 @@ public APLRes AskPluginLoad2(Handle myself, bool late, char[] error, int err_max
 public void OnPluginStart()
 {
 	Core_DoTickrateChanges();
-	DHook_Setup();
 	SDKCall_Setup();
 	Events_PluginStart();
 	SDKHook_PluginStart();
-	WandProjectile_GamedataInit();
 	Console_PluginStart();
 	
 	SpawnPointArray = new ArrayList(sizeof(SpawnPointInfo));
@@ -248,7 +245,6 @@ public void OnClientPutInServer(int client)
 	Core_DoTickrateChanges();
 	
 	SDKHook_HookClient(client);
-	ValidTargetToHit[client] = true;
 	ClientFirstTimeChoosingTeam[client] = true;
 }
 public void OnGameFrame()
@@ -271,7 +267,6 @@ public void OnEntityCreated(int entity, const char[] classname)
 	if (!IsValidEntity(entity))
 		return;
 	b_IsAProjectile[entity] = false;
-	ValidTargetToHit[entity] = false;
 	i_SavedActualWeaponSlot[entity] = -1;
 	b_IsATrigger[entity] = false;
 	b_IsATriggerHurt[entity] = false;
@@ -309,6 +304,10 @@ public void OnEntityCreated(int entity, const char[] classname)
 	else if (StrEqual(classname, "tf_player_manager"))
 	{
 		SDKHook(entity, SDKHook_ThinkPost, OnTFPlayerManagerThinkPost);	
+	}
+	else if (StrEqual(classname, "prop_dynamic"))
+	{
+		OnCreate_Proj(entity);
 	}
 	else if(!StrContains(classname, "item_healthkit_medium"))
 	{
@@ -413,7 +412,13 @@ public void OnEntityDestroyed(int entity)
 	
 	if (!IsValidEntity(entity))
 		return;
-	DHook_EntityDestoryed();
+		
+	char classname[128];
+	GetEntityClassname(entity, classname, sizeof(classname));
+	if (StrEqual(classname, "prop_dynamic"))
+	{
+		OnDestroy_Proj(entity);
+	}
 }
 void Core_DoTickrateChanges()
 {

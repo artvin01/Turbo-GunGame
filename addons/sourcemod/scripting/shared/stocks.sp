@@ -214,14 +214,14 @@ stock int GetMaxWeapons(int client)
 
 stock void SetPlayerActiveWeapon(int client, int weapon)
 {
-	TF2Util_SetPlayerActiveWeapon(client, weapon);
-	/*
+//	TF2Util_SetPlayerActiveWeapon(client, weapon);
+	
 	char buffer[64];
 	GetEntityClassname(weapon, buffer, sizeof(buffer));
 	FakeClientCommand(client, "use %s", buffer); 					//allow client to change
 	SetEntPropEnt(client, Prop_Send, "m_hActiveWeapon", weapon);	//Force client to change.
 	OnWeaponSwitchPost(client, weapon);
-	*/
+	
 }
 
 
@@ -376,7 +376,6 @@ void RemoveAllDefaultAttribsExceptStrings(int entity)
 	ArrayList staticAttribs = TF2Econ_GetItemStaticAttributes(GetEntProp(entity, Prop_Send, "m_iItemDefinitionIndex"));
 	char Weaponname[64];
 	GetEntityClassname(entity, Weaponname, sizeof(Weaponname));
-	DHook_HookStripWeapon(entity);
 	
 	for(int i = 0; i < staticAttribs.Length; i++)
 	{
@@ -604,26 +603,6 @@ stock TFClassType TF2_GetWeaponClass(int index, TFClassType defaul=TFClass_Unkno
 		return backup;
 	
 	return defaul;
-}
-
-
-stock void DHook_CreateDetour(GameData gamedata, const char[] name, DHookCallback preCallback = INVALID_FUNCTION, DHookCallback postCallback = INVALID_FUNCTION)
-{
-	DynamicDetour detour = DynamicDetour.FromConf(gamedata, name);
-	if(detour)
-	{
-		if(preCallback!=INVALID_FUNCTION && !DHookEnableDetour(detour, false, preCallback))
-			LogError("[Gamedata] Failed to enable pre detour: %s", name);
-
-		if(postCallback!=INVALID_FUNCTION && !DHookEnableDetour(detour, true, postCallback))
-			LogError("[Gamedata] Failed to enable post detour: %s", name);
-
-		delete detour;
-	}
-	else
-	{
-		LogError("[Gamedata] Could not find %s", name);
-	}
 }
 
 

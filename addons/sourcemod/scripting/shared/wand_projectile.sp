@@ -2,6 +2,7 @@
 #pragma newdecls required
 
 Function func_WandOnTouch[MAXENTITIES];
+float m_vInitialVelocity[MAXENTITIES][3];
 #define ENERGY_BALL_MODEL	"models/weapons/w_models/w_drg_ball.mdl"
 
 void WandStocks_Map_Precache()
@@ -18,17 +19,6 @@ stock void WandProjectile_ApplyFunctionToEntity(int projectile, Function Functio
 stock Function func_WandOnTouchReturn(int entity)
 {
 	return func_WandOnTouch[entity];
-}
-
-void WandProjectile_GamedataInit()
-{
-	CEntityFactory EntityFactory = new CEntityFactory("zr_projectile_base", OnCreate_Proj, OnDestroy_Proj);
-	EntityFactory.DeriveFromClass("prop_dynamic");
-	EntityFactory.BeginDataMapDesc()
-		.DefineVectorField("m_vInitialVelocity", 3)
-	.EndDataMapDesc(); 
-
-	EntityFactory.Install();
 }
 
 stock int Wand_Projectile_Spawn(int client,
@@ -94,7 +84,7 @@ float CustomPos[3] = {0.0,0.0,0.0}) //This will handle just the spawning, the re
 	fVel[1] = fBuf[1]*speed;
 	fVel[2] = fBuf[2]*speed;
 
-	int entity = CreateEntityByName("zr_projectile_base");
+	int entity = CreateEntityByName("prop_dynamic");
 	if(IsValidEntity(entity))
 	{
 		i_WandOwner[entity] = EntIndexToEntRef(client);
@@ -109,7 +99,9 @@ float CustomPos[3] = {0.0,0.0,0.0}) //This will handle just the spawning, the re
 		int frame = GetEntProp(entity, Prop_Send, "m_ubInterpolationFrame");
 		Custom_SDKCall_SetLocalOrigin(entity, fPos);
 		SDKCall_SetAbsOrigin(entity, fPos);
-		SetEntPropVector(entity, Prop_Data, "m_vInitialVelocity", fVel);
+		m_vInitialVelocity[entity][0] = fVel[0];
+		m_vInitialVelocity[entity][1] = fVel[1];
+		m_vInitialVelocity[entity][2] = fVel[2];
 		Custom_SetAbsVelocity(entity, fVel);	
 		SDKCall_SetAbsAngle(entity, fAng);
 		DispatchSpawn(entity);
@@ -158,7 +150,7 @@ float CustomPos[3] = {0.0,0.0,0.0}) //This will handle just the spawning, the re
 
 		SDKHook(entity, SDKHook_Think, ProjectileBaseThink);
 		SDKHook(entity, SDKHook_ThinkPost, ProjectileBaseThinkPost);
-		CBaseCombatCharacter(entity).SetNextThink(GetGameTime());
+		SetNextThink(entity, GetGameTime());
 		b_IsAProjectile[entity] = true;
 		
 		SDKHook(entity, SDKHook_StartTouch, Wand_Base_StartTouch);
@@ -170,6 +162,12 @@ float CustomPos[3] = {0.0,0.0,0.0}) //This will handle just the spawning, the re
 	return -1;
 }
 
+void SetNextThink(int entity, float timeset)
+{
+	int thinkTick = TIME_TO_TICKS(timeset);
+
+	SetEntProp(entity, Prop_Send, "m_nNextThinkTick", thinkTick); 
+}
 public void ProjectileBaseThink(int Projectile)
 {	
 	ProjectileBaseThinkInternal(Projectile, 1.0);
@@ -252,11 +250,7 @@ bool ProjectileTraceHitTargets(int entity, int contentsMask, DataPack packFilter
 
 public void ProjectileBaseThinkPost(int Projectile)
 {
-	CBaseCombatCharacter(Projectile).SetNextThink(GetGameTime() + 0.02);
-}
-public MRESReturn Wand_DHook_RocketExplodePre(int arrow)
-{
-	return MRES_Supercede; //DONT.
+	SetNextThink(Projectile, GetGameTime() + 0.02);
 }
 
 public Action Timer_RemoveEntity_CustomProjectileWand(Handle timer, DataPack pack)
@@ -291,28 +285,28 @@ public void Wand_Base_StartTouch(int entity, int other)
 	}
 }
 
-static void OnCreate_Proj(CBaseCombatCharacter body)
+void OnCreate_Proj(int entity)
 {
-	int extra_index = EntRefToEntIndex(iref_PropAppliedToRocket[body.index]);
+	int extra_index = EntRefToEntIndex(iref_PropAppliedToRocket[entity]);
 	if(IsValidEntity(extra_index))
 		RemoveEntity(extra_index);
 
-	iref_PropAppliedToRocket[body.index] = INVALID_ENT_REFERENCE;
+	iref_PropAppliedToRocket[entity] = INVALID_ENT_REFERENCE;
 	return;
 }
-static void OnDestroy_Proj(CBaseCombatCharacter body)
+void OnDestroy_Proj(int entity)
 {
-	int extra_index = EntRefToEntIndex(iref_PropAppliedToRocket[body.index]);
+	int extra_index = EntRefToEntIndex(iref_PropAppliedToRocket[entity]);
 	if(IsValidEntity(extra_index))
 		RemoveEntity(extra_index);
 		
-	extra_index = EntRefToEntIndex(i_WandParticle[body.index]);
+	extra_index = EntRefToEntIndex(i_WandParticle[entity]);
 	if(IsValidEntity(extra_index))
 		RemoveEntity(extra_index);
 
-	iref_PropAppliedToRocket[body.index] = INVALID_ENT_REFERENCE;
+	iref_PropAppliedToRocket[entity] = INVALID_ENT_REFERENCE;
 
-	func_WandOnTouch[body.index] = INVALID_FUNCTION;
+	func_WandOnTouch[entity] = INVALID_FUNCTION;
 
 	return;
 }

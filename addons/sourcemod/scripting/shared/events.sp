@@ -6,6 +6,7 @@ void Events_PluginStart()
 	HookEvent("teamplay_round_start", OnRoundStart, EventHookMode_PostNoCopy);
 	HookEvent("post_inventory_application", OnPlayerResupply, EventHookMode_Post);
 	HookEvent("player_death", OnPlayerDeath, EventHookMode_Pre);
+	HookEvent("player_healed", PlayerHealEvent, EventHookMode_Pre);
 }
 
 
@@ -314,4 +315,18 @@ void OnTFPlayerManagerThinkPost(int entity)
 	}
 	
 	SetEntDataArray(entity, scoreOffset, playerScores, MaxClients + 1);
+}
+
+
+public Action PlayerHealEvent(Event event, const char[] name, bool dontBroadcast)
+{
+	int patient = GetClientOfUserId(event.GetInt("patient"));
+	int healer = GetClientOfUserId(event.GetInt("healer"));
+	if(patient == healer)
+	{
+		//prevents medic self heal?
+		SetEntProp(patient, Prop_Send, "m_iHealth", GetEntProp(patient, Prop_Send, "m_iHealth") - event.GetInt("amount"));
+		return Plugin_Handled;
+	}
+	return Plugin_Continue;
 }

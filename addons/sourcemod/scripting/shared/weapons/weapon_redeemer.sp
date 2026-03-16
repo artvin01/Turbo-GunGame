@@ -76,8 +76,7 @@ public void Redeemer_OnPlayerRunCmd(int client, int &buttons, int &impulse, floa
 		return;
 
 	float fVel[3];
-	GetEntPropVector(Rocket, Prop_Data, "m_vInitialVelocity", fVel);
-	float speed = getLinearVelocity(fVel);
+	float speed = getLinearVelocity(m_vInitialVelocity[Rocket]);
 
 	if(speed <= 0.0)
 		return;
@@ -123,10 +122,12 @@ static Action Timer_Local(Handle timer, DataPack pack)
 		if(f_WandDamage[rocket] >= 1000.0)
 			f_WandDamage[rocket] = 1000.0;
 		float fVel[3];
+		fVel[0] = m_vInitialVelocity[rocket][0];
+		fVel[1] = m_vInitialVelocity[rocket][1];
+		fVel[2] = m_vInitialVelocity[rocket][2];
 
 		PrintCenterText(client, "Control your rocket with your mouse!\nThe more it flies, the more damage it will deal.");
 		SetEntProp(client, Prop_Send, "m_hObserverTarget", -1);
-		GetEntPropVector(rocket, Prop_Data, "m_vInitialVelocity", fVel);
 		float speed = getLinearVelocity(fVel);
 		if(speed < 1500.0)
 		{
@@ -155,7 +156,9 @@ static Action Timer_Local(Handle timer, DataPack pack)
 				i_WandParticle[rocket] = EntIndexToEntRef(particle);
 			}
 			Custom_SetAbsVelocity(rocket, fVel);	
-			SetEntPropVector(rocket, Prop_Data, "m_vInitialVelocity", fVel);
+			m_vInitialVelocity[rocket][0] = fVel[0];
+			m_vInitialVelocity[rocket][1] = fVel[1];
+			m_vInitialVelocity[rocket][2] = fVel[2];
 		}
 	}
 

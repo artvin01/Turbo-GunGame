@@ -19,8 +19,6 @@ void DHook_Setup()
 		SetFailState("Failed to load gamedata (zombie_riot).");
 	} 
 	
-	DHook_CreateDetour(gamedata, "CTFPlayer::CanAirDash", DHook_CanAirDashPre);
-	DHook_CreateDetour(gamedata, "CTFPlayer::CanAirDash", DHook_CanAirDashPre);
 	DHook_CreateDetour(gamedata, "CTFPlayer::RegenThink", DHook_RegenThinkPre, DHook_RegenThinkPost);
 	DHook_CreateDetour(gamedata, "CTFPlayer::ManageRegularWeapons()", DHook_ManageRegularWeaponsPre, DHook_ManageRegularWeaponsPost);
 	DHook_CreateDetour(gamedata, "CTFPlayer::SpeakConceptIfAllowed()", SpeakConceptIfAllowed_Pre, SpeakConceptIfAllowed_Post);
@@ -84,12 +82,6 @@ public MRESReturn DHook_RegenThinkPost(int client, DHookParam param)
 		
 	WasMedicPreRegen[client] = false;
 	return MRES_Ignored;
-}
-
-public MRESReturn DHook_CanAirDashPre(int client, DHookReturn ret)
-{
-	ret.Value = false;
-	return MRES_Supercede;
 }
 
 
@@ -171,37 +163,6 @@ public Action CH_PassFilter(int ent1, int ent2, bool &result)
 	return Plugin_Continue;
 
 }
-stock void DHook_HookStripWeapon(int entity)
-{
-	if(m_Item > 0 && m_bOnlyIterateItemViewAttributes > 0)
-	{
-		if(!RawEntityHooks)
-			RawEntityHooks = new ArrayList(sizeof(RawHooks));
-		
-		Address pCEconItemView = GetEntityAddress(entity) + view_as<Address>(m_Item);
-		
-		RawHooks raw;
-		
-		raw.Ref = EntIndexToEntRef(entity);
-		raw.Pre = HookItemIterateAttribute.HookRaw(Hook_Pre, pCEconItemView, DHook_IterateAttributesPre);
-		raw.Post = HookItemIterateAttribute.HookRaw(Hook_Post, pCEconItemView, DHook_IterateAttributesPost);
-		
-		RawEntityHooks.PushArray(raw);
-	}
-}
-
-public MRESReturn DHook_IterateAttributesPre(Address pThis, DHookParam hParams)
-{
-	StoreToAddress(pThis + view_as<Address>(m_bOnlyIterateItemViewAttributes), true, NumberType_Int8);
-	return MRES_Ignored;
-}
-
-public MRESReturn DHook_IterateAttributesPost(Address pThis, DHookParam hParams)
-{
-	StoreToAddress(pThis + view_as<Address>(m_bOnlyIterateItemViewAttributes), false, NumberType_Int8);
-	return MRES_Ignored;
-}
-
 
 
 public MRESReturn SpeakConceptIfAllowed_Pre(int client, DHookReturn returnHook, DHookParam param)
