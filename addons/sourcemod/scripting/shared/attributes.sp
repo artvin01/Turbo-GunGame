@@ -135,8 +135,23 @@ void Attributes_EntityDestroyed(int entity)
 
 stock bool Attributes_RemoveAll(int entity)
 {
+	if(!WeaponAttributes[entity])
+		return;
+    StringMapSnapshot snap = WeaponAttributes[entity].Snapshot();
+    int entries = snap.Length;
+    for(int i; i < entries; i++)
+    {
+        int lengt = snap.KeyBufferSize(i)+1;
+        char[] name = new char[lengt];
+		int attribute = StringToInt(name);
+		if(Attribute_ServerSide(attribute))
+			continue;
+			
+		Hack_TF2Attrib_RemoveByDefIndex(entity, attribute);
+        snap.GetKey(i, name, lengt);
+    }
+
 	delete WeaponAttributes[entity];
-	return TF2Attrib_RemoveAll(entity);
 }
 
 int ReplaceAttribute_Internally(int attribute)
@@ -194,12 +209,12 @@ bool Attributes_Set(int entity, int attrib, float value, bool DoOnlyTf2Side = fa
 	
 	if(Attribute_IntAttribute(attrib) && !Attribute_DontSaveAsIntAttribute(attrib))
 	{
-		TF2Attrib_SetByDefIndex(entity, attrib, view_as<float>(RoundFloat(value)));
+		Hack_TF2Attrib_SetByDefIndex(entity, attrib, view_as<float>(RoundFloat(value)));
 		return true;
 	}
 	
 	
-	TF2Attrib_SetByDefIndex(entity, attrib, value);
+	Hack_TF2Attrib_SetByDefIndex(entity, attrib, value);
 	return true;
 }
 
@@ -398,3 +413,24 @@ stock float Attributes_GetOnWeapon(int client, int entity, int index, bool multi
 #define MULTIDMG_BLEED 		 ( 1<<2 )
 #define MULTIDMG_BUILDER 	 ( 1<<3 )
 */
+
+void Hack_TF2Attrib_SetByDefIndex(int entity, int attrib, float value)
+{
+	char name[256];
+	TF2Econ_GetAttributeName(attrib, name, sizeof(name));
+
+	char buffer[256];
+	Format(buffer, sizeof(buffer), "self.Add%sAttribute(\"%s\", %f, -1.0)", entity > MaxClients ? "" : "Custom", name, value);
+	SetVariantString(buffer);
+	AcceptEntityInput(entity, "RunScriptCode");
+}
+void Hack_TF2Attrib_RemoveByDefIndex(int entity, int attrib)
+{
+	char name[256];
+	TF2Econ_GetAttributeName(attrib, name, sizeof(name));
+
+	char buffer[256];
+	Format(buffer, sizeof(buffer), "self.Remove%sAttribute(\"%s\")", entity > MaxClients ? "" : "Custom", name);
+	SetVariantString(buffer);
+	AcceptEntityInput(entity, "RunScriptCode");
+}

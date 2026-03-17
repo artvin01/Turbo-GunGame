@@ -9,7 +9,7 @@
 #define AUTOLOAD_EXTENSIONS
 #include <tf_econ_data>
 
-#include <tf2attributes>
+//#include <tf2attributes>
 #include <morecolors>
 //#include <tf2utils>
 //#include <sourcescramble>

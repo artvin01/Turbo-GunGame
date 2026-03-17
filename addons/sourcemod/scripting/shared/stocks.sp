@@ -316,8 +316,7 @@ static int SpawnWeaponBase(int client, char[] name, int index, int level, int qu
 	delete weapon;
 	if(entity > MaxClients)
 	{
-
-
+		SetEntProp(entity, Prop_Send, "m_bOnlyIterateItemViewAttributes", true);
 		Attributes_EntityDestroyed(entity);
 
 		//for(int i; i < count; i++)
