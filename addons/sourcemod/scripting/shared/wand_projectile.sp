@@ -149,7 +149,7 @@ float CustomPos[3] = {0.0,0.0,0.0}) //This will handle just the spawning, the re
 		SetEntProp(entity, Prop_Send, "m_usSolidFlags", FSOLID_NOT_SOLID | FSOLID_TRIGGER); 
 		// EFL_NO_THINK_FUNCTION (1 << 22)
 		SetEntityFlags(entity, GetEntityFlags(entity) &~ 4194304);
-
+		ForceThinkEnable(entity);
 		SDKHook(entity, SDKHook_Think, ProjectileBaseThink);
 		SDKHook(entity, SDKHook_ThinkPost, ProjectileBaseThinkPost);
 		SetNextThink(entity, GetGameTime());
@@ -388,4 +388,13 @@ stock int Target_Hit_Wand_Detection(int owner_projectile, int other_entity)
 		return other_entity;
 	}
 	return 0;
+}
+
+
+void ForceThinkEnable(int entity)
+{
+	char buffer[256];
+	Format(buffer, sizeof(buffer), "AddThinkToEnt(self, \"DummyThinkFunction_DonotUse\"); function DummyThinkFunction_DonotUse() {}");
+	SetVariantString(buffer);
+	AcceptEntityInput(entity, "RunScriptCode");
 }
