@@ -255,7 +255,7 @@ bool ProjectileTraceHitTargets(int entity, int contentsMask, DataPack packFilter
 
 public void ProjectileBaseThinkPost(int Projectile)
 {
-	SetNextThink(Projectile, GetGameTime() + 0.02);
+	SetNextThink(Projectile, GetGameTime());
 }
 
 public Action Timer_RemoveEntity_CustomProjectileWand(Handle timer, DataPack pack)
@@ -397,7 +397,7 @@ stock int Target_Hit_Wand_Detection(int owner_projectile, int other_entity)
 void ForceThinkEnable(int entity)
 {
 	char buffer[256];
-	Format(buffer, sizeof(buffer), "AddThinkToEnt(self, \"DummyThinkFunction_DonotUse\"); function DummyThinkFunction_DonotUse() {}");
+	Format(buffer, sizeof(buffer), "AddThinkToEnt(self, \"DummyThinkFunction_DonotUse\"); function DummyThinkFunction_DonotUse() {return 0.0;}");
 	SetVariantString(buffer);
 	AcceptEntityInput(entity, "RunScriptCode");
 }
