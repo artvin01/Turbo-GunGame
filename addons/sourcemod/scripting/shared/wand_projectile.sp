@@ -147,6 +147,8 @@ float CustomPos[3] = {0.0,0.0,0.0}) //This will handle just the spawning, the re
 		}
 		//so they dont get stuck on entities in the air.
 		SetEntProp(entity, Prop_Send, "m_usSolidFlags", FSOLID_NOT_SOLID | FSOLID_TRIGGER); 
+		// EFL_NO_THINK_FUNCTION (1 << 22)
+		SetEntityFlags(entity, GetEntityFlags(entity) &~ 4194304);
 
 		SDKHook(entity, SDKHook_Think, ProjectileBaseThink);
 		SDKHook(entity, SDKHook_ThinkPost, ProjectileBaseThinkPost);
@@ -166,7 +168,7 @@ void SetNextThink(int entity, float timeset)
 {
 	int thinkTick = TIME_TO_TICKS(timeset);
 
-	SetEntProp(entity, Prop_Send, "m_nNextThinkTick", thinkTick); 
+	SetEntProp(entity, Prop_Data, "m_nNextThinkTick", thinkTick); 
 }
 public void ProjectileBaseThink(int Projectile)
 {	
