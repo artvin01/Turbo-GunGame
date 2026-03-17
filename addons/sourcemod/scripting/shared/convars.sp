@@ -21,9 +21,9 @@ void ConVar_ConfigsExecuted()
 
 	sv_cheats = ConVar_Add("sv_cheats", "0", false, (FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_CHEAT));
 	mp_friendlyfire = FindConVar("mp_friendlyfire");
+	mp_humans_must_join_team = FindConVar("mp_humans_must_join_team");
 //	mp_friendlyfire = ConVar_Add("mp_friendlyfire", "1", false, (FCVAR_NOTIFY | FCVAR_CHEAT));
 	tf_scout_air_dash_count = ConVar_Add("tf_scout_air_dash_count", "0", false); 
-	mp_humans_must_join_team = ConVar_Add("mp_humans_must_join_team", "red"); 	//only reds allowed
 
 	Cvar_TGG_WeaponsTillWin = CreateConVar("tgg_weapons_till_win", "25", "How many kills untill a player wins");
 	Cvar_TGG_AllowFreeClassPicking = CreateConVar("tgg_allowfreeclasspicking", "0", "are players allowed to have classes for vanity");
