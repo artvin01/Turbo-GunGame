@@ -347,6 +347,8 @@ void Frame_SetMapSpawnPointsPostTeamSwitch(TFTeam team)
 
 void SetMapSpawnPointsToTeam(TFTeam team, bool respawn)
 {
+	if(!mp_friendlyfire.IntValue)
+		return;
 	n_ForcedTeam = team;
 	
 	int length = SpawnPointArray.Length;
