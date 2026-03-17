@@ -267,6 +267,7 @@ public void OnEntityCreated(int entity, const char[] classname)
 		return;
 	if (!IsValidEntity(entity))
 		return;
+	ValidTargetToHit[entity] = false;
 	b_IsAProjectile[entity] = false;
 	i_SavedActualWeaponSlot[entity] = -1;
 	b_IsATrigger[entity] = false;
@@ -275,6 +276,10 @@ public void OnEntityCreated(int entity, const char[] classname)
 	if(!StrContains(classname, "trigger_teleport")) //npcs think they cant go past this sometimes, lol
 	{
 		b_IsATrigger[entity] = true;
+	}
+	else if (!StrContains(classname, "player")) 
+	{
+		ValidTargetToHit[entity] = true;
 	}
 	else if (!StrContains(classname, "tf_weapon_medigun")) 
 	{
