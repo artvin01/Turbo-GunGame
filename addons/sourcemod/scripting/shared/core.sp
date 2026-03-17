@@ -246,6 +246,7 @@ public void OnClientPutInServer(int client)
 	
 	SDKHook_HookClient(client);
 	ClientFirstTimeChoosingTeam[client] = true;
+	ValidTargetToHit[client] = true;
 }
 public void OnGameFrame()
 {
