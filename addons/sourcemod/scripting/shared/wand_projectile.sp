@@ -57,6 +57,9 @@ float CustomPos[3] = {0.0,0.0,0.0}) //This will handle just the spawning, the re
 		speed = 3000.0;
 		//if its too fast, then it can cause projectile devietion
 	}
+	static int WandIdRemovewarning;
+	WandIdRemovewarning = WandId;
+	WandId = WandIdRemovewarning;
 
 	if(client <= MaxClients && CustomPos[0] == 0.0 && CustomPos[1] == 0.0)
 	{

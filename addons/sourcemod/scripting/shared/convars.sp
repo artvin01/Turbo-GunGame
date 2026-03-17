@@ -20,7 +20,8 @@ void ConVar_ConfigsExecuted()
 	CvarList = new ArrayList(sizeof(CvarInfo));
 
 	sv_cheats = ConVar_Add("sv_cheats", "0", false, (FCVAR_NOTIFY | FCVAR_REPLICATED | FCVAR_CHEAT));
-	mp_friendlyfire = ConVar_Add("mp_friendlyfire", "1", true, (FCVAR_NOTIFY | FCVAR_CHEAT));
+	mp_friendlyfire = FindConVar("mp_friendlyfire");
+//	mp_friendlyfire = ConVar_Add("mp_friendlyfire", "1", false, (FCVAR_NOTIFY | FCVAR_CHEAT));
 	tf_scout_air_dash_count = ConVar_Add("tf_scout_air_dash_count", "0", false); 
 	mp_humans_must_join_team = ConVar_Add("mp_humans_must_join_team", "red"); 	//only reds allowed
 
@@ -30,14 +31,15 @@ void ConVar_ConfigsExecuted()
 	ConVar_Add("tf_weapon_minicrits_distance_falloff", "1.0"); //Remove crits
 	ConVar_Add("tf_weapon_criticals", "0.0");			//Remove crits
 	ConVar_Add("tf_weapon_criticals_melee", "0.0");		//Remove crits
-	ConVar_Add("tf_avoidteammates_pushaway", "0"); 
 	ConVar_Add("tf_dropped_weapon_lifetime", "0.0"); 	//Remove dropped weapons
 	ConVar_Add("tf_spawn_glows_duration", "0.0"); 		//No glow duration
+	/*
+	ConVar_Add("tf_avoidteammates_pushaway", "0"); 
 	ConVar_Add("tf_avoidteammates", "0.0"); 			//always touch
 	ConVar_Add("mp_autoteambalance", "0"); 				//balance
 	ConVar_Add("mp_teams_unbalance_limit", "0"); 		//balance
+	*/
 	ConVar_ToggleDo();
-
 }
 
 static ConVar ConVar_Add(const char[] name, const char[] value, bool enforce=true, int flagsremove = FCVAR_CHEAT)

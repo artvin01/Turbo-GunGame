@@ -130,7 +130,7 @@ void ViewChange_ClientDisconnect(int client)
 	ViewChange_DeleteHands(client);
 }
 
-stock void OverridePlayerModel(int client, int index = -1, bool DontShowCosmetics = false)
+stock void OverridePlayerModel(int client, bool DontShowCosmetics = false)
 {
 	Viewchange_UpdateDelay(client);
 //	int entity;
@@ -182,7 +182,7 @@ void ViewChange_PlayerModel(int client)
 	
 		if(Native_OnClientWorldmodel(client, CurrentClass[client], index, body, anim, noCosmetic))
 		{
-			OverridePlayerModel(client, -1, noCosmetic);
+			OverridePlayerModel(client, noCosmetic);
 		}
 
 		

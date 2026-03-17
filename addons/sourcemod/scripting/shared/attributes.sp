@@ -133,7 +133,7 @@ void Attributes_EntityDestroyed(int entity)
 	delete WeaponAttributes[entity];
 }
 
-stock bool Attributes_RemoveAll(int entity)
+stock void Attributes_RemoveAll(int entity)
 {
 	if(!WeaponAttributes[entity])
 		return;
