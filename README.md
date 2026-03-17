@@ -4,12 +4,8 @@ Gun Game But extreamly fast paced and with absolute adrenaline
 
 # Dependencies
 
-- [Flaming Sarge's TF2Attribute fork](https://github.com/FlaminSarge/tf2attributes)
 - [TF2Items](https://builds.limetech.io/?project=tf2items)
 - [TFEconData](https://github.com/nosoop/SM-TFEconData)
-- [CBaseNpc](https://github.com/TF2-DMB/CBaseNPC)
-- [TF2Utils](https://github.com/nosoop/SM-TFUtils)
-- [CollisionHookFIX](https://github.com/voided/CollisionHook)
 
 # Heavily Recommended
 
