@@ -301,23 +301,6 @@ Action Timer_EnableCollision(Handle timer)
 	return Plugin_Continue;
 }
 
-void OnTFPlayerManagerThinkPost(int entity)
-{
-	static int scoreOffset = -1;
-	if (scoreOffset == -1)
-		scoreOffset = FindSendPropInfo("CTFPlayerResource", "m_iTotalScore");
-	
-	int playerScores[MAXPLAYERS + 1];
-	for (int client = 1; client <= MaxClients; client++)
-	{
-		if (IsValidClient(client))
-			playerScores[client] = ClientAtWhatScore[client];
-	}
-	
-	SetEntDataArray(entity, scoreOffset, playerScores, MaxClients + 1);
-}
-
-
 public Action PlayerHealEvent(Event event, const char[] name, bool dontBroadcast)
 {
 	int patient = GetClientOfUserId(event.GetInt("patient"));
