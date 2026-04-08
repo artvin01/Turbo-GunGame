@@ -97,13 +97,6 @@ void SDKCall_Setup()
 	if(!g_hSetAbsOrigin)
 		LogError("[Gamedata] Could not find CBaseEntity::SetAbsOrigin");
 
-	StartPrepSDKCall(SDKCall_Entity);
-	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "CBaseEntity::SetAbsOrigin");
-	PrepSDKCall_AddParameter(SDKType_Vector, SDKPass_ByRef);
-	g_hSetAbsOrigin = EndPrepSDKCall();
-	if(!g_hSetAbsOrigin)
-		LogError("[Gamedata] Could not find CBaseEntity::SetAbsOrigin");
-
 		
 	StartPrepSDKCall(SDKCall_Static);
 	PrepSDKCall_SetFromConf(gamedata, SDKConf_Signature, "Studio_FindAttachment");
