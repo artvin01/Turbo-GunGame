@@ -19,8 +19,6 @@ void DHook_Setup()
 		SetFailState("Failed to load gamedata (zombie_riot).");
 	} 
 	
-	DHook_CreateDetour(gamedata, "CTFPlayer::CanAirDash", DHook_CanAirDashPre);
-	DHook_CreateDetour(gamedata, "CTFPlayer::CanAirDash", DHook_CanAirDashPre);
 	DHook_CreateDetour(gamedata, "CTFPlayer::RegenThink", DHook_RegenThinkPre, DHook_RegenThinkPost);
 	DHook_CreateDetour(gamedata, "CTFPlayer::ManageRegularWeapons()", DHook_ManageRegularWeaponsPre, DHook_ManageRegularWeaponsPost);
 	DHook_CreateDetour(gamedata, "CTFPlayer::SpeakConceptIfAllowed()", SpeakConceptIfAllowed_Pre, SpeakConceptIfAllowed_Post);
@@ -85,13 +83,6 @@ public MRESReturn DHook_RegenThinkPost(int client, DHookParam param)
 	WasMedicPreRegen[client] = false;
 	return MRES_Ignored;
 }
-
-public MRESReturn DHook_CanAirDashPre(int client, DHookReturn ret)
-{
-	ret.Value = false;
-	return MRES_Supercede;
-}
-
 
 
 
