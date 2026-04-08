@@ -200,9 +200,15 @@ stock void SDKCall_RecalculatePlayerBodygroups(int index)
 }
 
 //https://github.com/nosoop/SM-TFUtils/blob/4802fa401a86d3088feb77c8a78d758c10806112/scripting/tf2utils.sp#L1067C1-L1067C1
-static Address GetPlayerSharedAddress(int client) {
-	return GetEntityAddress(client)
-			+ view_as<Address>(FindSendPropInfo("CTFPlayer", "m_Shared"));
+static Address GetPlayerSharedAddress(int client) 
+{
+	static Address AddressSave;
+
+	if(!AddressSave)
+	{
+		AddressSave = view_as<Address>(FindSendPropInfo("CTFPlayer", "m_Shared"));
+	}
+	return (GetEntityAddress(client) + AddressSave);
 }
 
 
