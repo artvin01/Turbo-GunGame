@@ -227,17 +227,15 @@ public void OnRoundStart(Event event, const char[] name, bool dontBroadcast)
 	TFTeam team = TFTeam_Unassigned;
 	char teamName[8];
 	
-	if (mp_humans_must_join_team)
-	{
-		mp_humans_must_join_team.GetString(teamName, sizeof(teamName));
-		
-		if (!StrContains(teamName, "red"))
-			team = TFTeam_Red;
-		else if (!StrContains(teamName, "blu"))
-			team = TFTeam_Blue;
-		
+	mp_humans_must_join_team.GetString(teamName, sizeof(teamName));
+	
+	if (!StrContains(teamName, "red"))
+		team = TFTeam_Red;
+	else if (!StrContains(teamName, "blu"))
+		team = TFTeam_Blue;
+	
+	if (team != TFTeam_Unassigned)
 		RequestFrame(Frame_SetMapSpawnPointsPostTeamSwitch, team);
-	}
 	
 	// Set up spawn über and player collision removal to last up to a certain time, even if players respawn/spawn late
 	const float freezeTime = 5.0;
