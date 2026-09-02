@@ -59,6 +59,7 @@ int i_WandOwner[MAXENTITIES]; //				//785
 int i_WeaponKilledWith[MAXPLAYERS];
 bool b_DiedToFallDamage[MAXPLAYERS];
 int i_FallDamageKillCredit[MAXPLAYERS];
+int i_RoundWinner;
 
 float f_RetryRespawn[MAXPLAYERS]={0.0, ...};
 int StoreWeapon[MAXENTITIES];

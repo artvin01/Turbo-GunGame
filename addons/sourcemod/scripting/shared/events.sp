@@ -73,16 +73,17 @@ public Action OnPlayerDeath(Event event, const char[] name, bool dontBroadcast)
 	}
 	else
 	{
-		CPrintToChat(attacker,"%s You just deranked %N!!!!", TGG_PREFIX, victim);
-		CPrintToChat(victim,"%s %N just deranked you!!!!", TGG_PREFIX, attacker);
-		EmitSoundToClient(victim, "mvm/mvm_money_vanish.wav", _, _, 90, _, 1.0, 100);
-		EmitSoundToClient(attacker, "mvm/mvm_money_vanish.wav", _, _, 90, _, 1.0, 100);
-		ClientAtWhatScore[victim]--;
-		if(ClientAtWhatScore[victim] <= 0)
+		if (ClientAtWhatScore[victim] > 0)
 		{
-			ClientAtWhatScore[victim] = 0;
+			Native_OnRankDown(victim, attacker);
+			
+			ClientAtWhatScore[victim]--;
+			
+			CPrintToChat(attacker,"%s You just deranked %N!!!!", TGG_PREFIX, victim);
+			CPrintToChat(victim,"%s %N just deranked you!!!!", TGG_PREFIX, attacker);
+			EmitSoundToClient(victim, "mvm/mvm_money_vanish.wav", _, _, 90, _, 1.0, 100);
+			EmitSoundToClient(attacker, "mvm/mvm_money_vanish.wav", _, _, 90, _, 1.0, 100);
 		}
-		//fard
 	}
 	i_HasBeenHeadShotted[victim] = false;
 	return Plugin_Continue;
@@ -96,6 +97,10 @@ bool CanClientGetAssistCredit(int client)
 
 stock void DelayFrame_RankPlayerUp(int userid)
 {
+	// Someone already won, don't do this
+	if (i_RoundWinner)
+		return;
+	
 	int client = GetClientOfUserId(userid);
 	if(!IsValidEntity(client))
 		return;
@@ -108,18 +113,32 @@ stock void DelayFrame_RankPlayerUp(int userid)
 	if (levels > 3)
 		levels = 3;
 	
+	int max = Cvar_TGG_WeaponsTillWin.IntValue - 1;
+	int clientRank = ClientAtWhatScore[client];
+	bool win;
+	
+	if (clientRank + levels > max)
+	{
+		// avoid giving more than intended
+		levels = max - clientRank;
+		win = true;
+	}
+	
+	Native_OnRankUp(client, levels);
 	GiveClientWeapon(client, levels);
+	
 	ClientAssistsThisLevel[client] = 0;
 	ClientKillsThisFrame[client] = 0;
 	
-	if(ClientAtWhatScore[client] >= Cvar_TGG_WeaponsTillWin.IntValue && GameRules_GetRoundState() == RoundState_RoundRunning)
+	if(win && GameRules_GetRoundState() == RoundState_RoundRunning)
 	{
 		//epic win
-		ClientAtWhatScore[client] = Cvar_TGG_WeaponsTillWin.IntValue;
+		i_RoundWinner = GetClientUserId(client);
+		ClientAtWhatScore[client] = max;
 		
 		// Make this prettier later i dunno
-		Native_OnWin(client);
 		CPrintToChatAll("%s %N wins the game!", TGG_PREFIX, client);
+		Native_OnWin(client);
 		
 		ForceTeamWin(TF2_GetClientTeam(client));
 	}
@@ -222,6 +241,7 @@ void Frame_GiveRoundStartConds(int userid)
 public void OnRoundStart(Event event, const char[] name, bool dontBroadcast)
 {
 	Weapons_ResetRound();
+	i_RoundWinner = 0;
 	
 	// Set all spawnpoints to a specific team if humans can only join one team
 	TFTeam team = TFTeam_Unassigned;

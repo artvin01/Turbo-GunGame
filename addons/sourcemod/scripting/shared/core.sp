@@ -8,6 +8,7 @@
 #tryinclude <tf2items>
 #define AUTOLOAD_EXTENSIONS
 #include <tf_econ_data>
+#include <turbo_gungame>
 
 //#include <tf2attributes>
 #include <morecolors>
@@ -146,6 +147,7 @@ public void OnMapStart()
 	Zero(f_PreventKillCredit);
 	Zero(f_RetryRespawn);
 	f_RoundStartUberLastsUntil = 0.0;
+	i_RoundWinner = 0;
 	//precache or fastdl
 	g_particleCritText = PrecacheParticleSystem("crit_text");
 	g_particleMiniCritText = PrecacheParticleSystem("minicrit_text");
@@ -479,7 +481,7 @@ public Action Command_ForceGiveGunName(int client, int args)
 	//What are you.
 	if(args < 1)
     {
-        ReplyToCommand(client, "[SM] Usage: Command_ForceGiveGunName <target> <name of gun>");
+        ReplyToCommand(client, "[SM] Usage: sm_give_gun <target> <name of gun>");
         return Plugin_Handled;
     }
     
@@ -586,4 +588,54 @@ public Action TF2_CalcIsAttackCritical(int client, int weapon, char[] classname,
 		Call_Finish(action);
 	}
 	return action;
+}
+
+ArrayList GetPlacementsArray()
+{
+	ArrayList list = new ArrayList(sizeof(TGGPlacementInfo));
+	TGGPlacementInfo info;
+	
+	int winner = i_RoundWinner ? GetClientOfUserId(i_RoundWinner) : 0;
+	
+	for (int client = 1; client <= MaxClients; client++)
+	{
+		if (!IsClientInGame(client) || TF2_GetClientTeam(client) <= TFTeam_Spectator)
+			continue;
+		
+		info.client = client;
+		info.rank = ClientAtWhatScore[client];
+		info.winner = client == winner;
+		
+		list.PushArray(info);
+	}
+	
+	int length = list.Length;
+	if (length > 0)
+	{
+		list.Sort(Sort_Descending, Sort_Integer);
+		
+		int lastRank = -1;
+		int position;
+		
+		for (int i = 0; i < length; i++)
+		{
+			int rank = list.Get(i, TGGPlacementInfo::rank);
+			if (lastRank != rank)
+			{
+				position = i + 1;
+				lastRank = rank;
+			}
+			
+			list.Set(i, position, TGGPlacementInfo::position);
+			
+			if (position <= 1)
+			{
+				bool isWinner = list.Get(i, TGGPlacementInfo::winner);
+				if (isWinner)
+					list.SwapAt(0, i);
+			}
+		}
+	}
+	
+	return list;
 }
