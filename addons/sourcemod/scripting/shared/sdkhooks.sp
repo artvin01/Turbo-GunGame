@@ -111,7 +111,10 @@ public Action Player_TraceAttack(int victim, int& attacker, int& inflictor, floa
 		
 	if(inflictor < 1 || inflictor > MaxClients)
 		return Plugin_Continue;
-		
+	
+	if ((damagetype & DMG_BULLET) == 0 && (damagetype & DMG_BUCKSHOT) == 0)
+		return Plugin_Continue;
+	
 	if(!IsValidEnemy(attacker, victim))
 		return Plugin_Continue;
 	i_HasBeenHeadShotted[victim] = false;

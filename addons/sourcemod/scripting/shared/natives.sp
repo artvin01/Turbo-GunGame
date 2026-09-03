@@ -3,7 +3,7 @@ static GlobalForward OnWin;
 static GlobalForward OnRankUp;
 static GlobalForward OnRankDown;
 static GlobalForward OnClientWorldmodel;
-
+static GlobalForward OnHeadshotKill;
 
 void Natives_PluginLoad()
 {
@@ -13,6 +13,7 @@ void Natives_PluginLoad()
 	OnRankUp = new GlobalForward("TGG_OnRankUp", ET_Ignore, Param_Cell, Param_Cell);
 	OnRankDown = new GlobalForward("TGG_OnRankDown", ET_Ignore, Param_Cell, Param_Cell);
 	OnClientWorldmodel = new GlobalForward("TGG_OnClientWorldmodel", ET_Event, Param_Cell, Param_Cell, Param_CellByRef, Param_CellByRef, Param_CellByRef, Param_CellByRef);
+	OnHeadshotKill = new GlobalForward("TGG_OnHeadshotKill", ET_Ignore, Param_Cell, Param_Cell);
 	
 	CreateNative("TGG_GetPlacements", Native_GetPlacements);
 }
@@ -54,6 +55,14 @@ bool Native_OnClientWorldmodel(int client, TFClassType class, int &worldmodel, i
 	Call_Finish(action);
 
 	return action >= Plugin_Changed;
+}
+
+void Native_OnHeadshotKill(int attacker, int victim)
+{
+	Call_StartForward(OnHeadshotKill);
+	Call_PushCell(attacker);
+	Call_PushCell(victim);
+	Call_Finish();
 }
 
 any Native_GetPlacements(Handle plugin, int numParams)

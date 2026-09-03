@@ -38,6 +38,15 @@ forward void TGG_OnRankUp(int client, int ranks)
 forward void TGG_OnRankDown(int client, int attacker)
 
 /**
+ * Called when a player kills with a headshot.
+ *
+ * @param attacker		Client index of the attacker.
+ * @param victim		Client index of the victim.
+ * @noreturn
+ */
+forward void TGG_OnHeadshotKill(int attacker, int victim)
+
+/**
  * Gives a list of all participating players with their ranks, positions and winner status.
  * @note				The list is ordered by rank. Winners always come first.
  *
