@@ -8,6 +8,10 @@ public void BonkBat_MapStart()
 {
 	AddFileToDownloadsTable("sound/tf2ware_ultimate/bonk_bat_hit.wav");
 	AddFileToDownloadsTable("models/weapons/c_models/tf2ware/c_bonk_bat.mdl");
+	AddFileToDownloadsTable("models/weapons/c_models/tf2ware/c_bonk_bat.vvd");
+	AddFileToDownloadsTable("models/weapons/c_models/tf2ware/c_bonk_bat.dx80.vtx");
+	AddFileToDownloadsTable("models/weapons/c_models/tf2ware/c_bonk_bat.dx90.vtx");
+	AddFileToDownloadsTable("models/weapons/c_models/tf2ware/c_bonk_bat.phy");
 	AddFileToDownloadsTable("materials/models/weapons/c_items/tf2ware/c_candy_cane_blu.vmt");
 	AddFileToDownloadsTable("materials/models/weapons/c_items/tf2ware/c_candy_cane_blu.vtf");
 	AddFileToDownloadsTable("materials/models/weapons/c_items/tf2ware/c_candy_cane_red.vmt");
